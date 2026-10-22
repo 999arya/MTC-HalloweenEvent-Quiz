@@ -1,0 +1,11 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/crypt-quiz/dist/index.html" },
+    { "source": "/assets/(.*)", "destination": "/crypt-quiz/dist/assets/$1" },
+    { "source": "/css/(.*)", "destination": "/crypt-quiz/dist/css/$1" },
+    { "source": "/questions.js", "destination": "/crypt-quiz/dist/questions.js" },
+    { "source": "/quiz.js", "destination": "/crypt-quiz/dist/quiz.js" },
+    { "source": "/(.*)", "destination": "/crypt-quiz/dist/$1" }
+  ]
+}

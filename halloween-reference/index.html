@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0203">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Creep. Code. Create. Round 2 of the Microsoft Tech Community Halloween build.">
+  <title>Microsoft Tech Community · Round 2</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%83%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rye&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Oswald:wght@400;500;600;700&family=Pixelify+Sans:wght@500;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/creepy.css">
+</head>
+<body>
+  <!--
+    ☠  So. You read the source.
+    The crypt rewards the curious. Anywhere on the page (not inside a text box),
+    type the only word the Raven ever spoke.        — Quoth the Raven, “…”
+    Elsewhere, pumpkins hide in plain sight. Look between the words.
+  -->
+
+  <!-- ============ ATMOSPHERE (purely decorative) ============ -->
+  <div class="atmo" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="circuit-grid" id="circuitGrid"></div>
+    <div class="stars" id="stars"></div>
+    <div class="moon-wrap">
+      <div class="moon"></div>
+    </div>
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+
+    <svg class="graveyard" viewBox="0 0 1440 360" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2a0a0a"/>
+          <stop offset="1" stop-color="#120405"/>
+        </linearGradient>
+        <linearGradient id="hillNear" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0d0304"/>
+          <stop offset="1" stop-color="#030102"/>
+        </linearGradient>
+        <radialGradient id="winGlow">
+          <stop offset="0" stop-color="#ffcf6b" stop-opacity=".9"/>
+          <stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- far hills -->
+      <path fill="url(#hillFar)" d="M0 250 C120 205 230 215 340 232 C470 252 560 190 700 196 C840 202 900 240 1010 222 C1110 205 1180 150 1290 160 C1360 166 1410 190 1440 200 L1440 360 L0 360Z"/>
+
+      <!-- haunted house on the far hill -->
+      <g class="house" fill="#0f0405">
+        <path d="M1200 170 L1200 120 L1192 120 L1226 70 L1260 120 L1252 120 L1252 170Z"/>
+        <path d="M1150 175 L1150 128 L1140 128 L1175 96 L1210 128 L1200 128 L1200 175Z"/>
+        <path d="M1252 172 L1252 140 L1244 140 L1270 112 L1296 140 L1288 140 L1288 172Z"/>
+        <rect x="1223" y="52" width="6" height="20"/>
+        <path d="M1226 46 l-4 8 h8z"/>
+      </g>
+      <g class="windows">
+        <circle class="glow g1" cx="1226" cy="108" r="22" fill="url(#winGlow)"/>
+        <rect class="win w1" x="1220" y="100" width="12" height="16" fill="#ffb347"/>
+        <rect class="win w2" x="1166" y="138" width="9" height="12" fill="#ffb347"/>
+        <rect class="win w3" x="1264" y="148" width="9" height="11" fill="#ff8c2b"/>
+        <rect class="win w4" x="1182" y="138" width="9" height="12" fill="#ffb347"/>
+      </g>
+
+      <!-- trees are generated in js/fx.js -->
+      <g id="treesFar" stroke="#170607" fill="none" stroke-linecap="round"></g>
+
+      <!-- near hill -->
+      <path fill="url(#hillNear)" d="M0 300 C160 262 300 282 440 290 C600 299 700 258 860 266 C1010 274 1120 300 1260 286 C1350 277 1400 270 1440 272 L1440 360 L0 360Z"/>
+
+      <g id="treesNear" stroke="#060203" fill="none" stroke-linecap="round"></g>
+
+      <!-- gravestones -->
+      <g fill="#070203">
+        <path d="M120 300 v-34 a18 18 0 0 1 36 0 v34z"/>
+        <path d="M190 296 v-22 a12 12 0 0 1 24 0 v22z"/>
+        <path d="M232 292 h6 v-30 h-10 v-7 h10 v-9 h6 v9 h10 v7 h-10 v30 h6z"/>
+        <path d="M540 296 v-28 a15 15 0 0 1 30 0 v28z" transform="rotate(-6 555 296)"/>
+        <path d="M610 290 h26 v-30 l-13 -8 l-13 8z"/>
+        <path d="M940 280 v-26 a14 14 0 0 1 28 0 v26z" transform="rotate(5 954 280)"/>
+        <path d="M990 284 v-18 a10 10 0 0 1 20 0 v18z"/>
+        <path d="M1320 286 h5 v-26 h-9 v-6 h9 v-8 h5 v8 h9 v6 h-9 v26 h5z"/>
+      </g>
+
+      <!-- iron fence -->
+      <g class="fence" stroke="#040102" stroke-width="3" fill="#040102">
+        <path d="M0 330 H1440" stroke-width="4"/>
+        <path d="M0 346 H1440" stroke-width="3"/>
+      </g>
+      <g id="fencePosts" fill="#040102"></g>
+    </svg>
+
+    <!-- figures that stand in the graveyard and watch (js/creatures.js) -->
+    <div class="shadows" id="shadows"></div>
+
+    <div class="fog fog-back"></div>
+    <div class="fog fog-front"></div>
+    <canvas class="motes" id="motes"></canvas>
+    <div class="bats" id="bats"></div>
+    <div class="flashlight"></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <div class="lightning" id="lightning"></div>
+    <!-- the horde that stands in the graveyard, seen only in the lightning -->
+    <div class="horde" id="horde"></div>
+
+    <div class="spider" id="spider" title="">
+      <div class="thread"></div>
+      <svg class="spider-body" viewBox="0 0 60 60">
+        <g stroke="#0a0a0a" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M24 28 Q12 18 6 24"/><path d="M24 31 Q10 28 4 36"/><path d="M25 34 Q14 40 8 50"/><path d="M26 36 Q20 46 18 56"/>
+          <path d="M36 28 Q48 18 54 24"/><path d="M36 31 Q50 28 56 36"/><path d="M35 34 Q46 40 52 50"/><path d="M34 36 Q40 46 42 56"/>
+        </g>
+        <ellipse cx="30" cy="36" rx="9" ry="11" fill="#0a0a0a"/>
+        <circle cx="30" cy="24" r="6" fill="#0a0a0a"/>
+        <circle cx="27.6" cy="23" r="1.4" fill="#ff2a2a"/><circle cx="32.4" cy="23" r="1.4" fill="#ff2a2a"/>
+      </svg>
+    </div>
+
+    <!-- cobwebs in the corners -->
+    <svg class="web web-tr" viewBox="0 0 200 200" aria-hidden="true">
+      <g stroke="rgba(240,215,205,.24)" stroke-width="1" fill="none">
+        <path d="M200 0 L60 200 M200 0 L0 120 M200 0 L110 200 M200 0 L0 40 M200 0 L170 200"/>
+        <path d="M168 0 Q172 26 200 32"/><path d="M128 0 Q140 52 200 64 "/><path d="M86 0 Q104 82 200 102"/><path d="M44 0 Q66 118 200 146"/><path d="M8 4 Q30 150 200 190"/>
+      </g>
+    </svg>
+    <svg class="web web-bl" viewBox="0 0 200 200" aria-hidden="true">
+      <g stroke="rgba(240,215,205,.17)" stroke-width="1" fill="none">
+        <path d="M0 200 L140 0 M0 200 L200 80 M0 200 L90 0 M0 200 L200 160"/>
+        <path d="M0 160 Q30 170 36 200"/><path d="M0 116 Q56 128 70 200"/><path d="M0 70 Q86 92 110 200"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- creatures that peek in from the dark (js/creatures.js) -->
+  <div class="creatures" id="creatures" aria-hidden="true"></div>
+
+  <!-- ============ ENTRY GATE (also unlocks audio) ============ -->
+  <div class="gate" id="gate">
+    <div class="gate-inner">
+      <svg class="pixel-pumpkin" data-pixel-pumpkin viewBox="0 0 15 13" aria-hidden="true"></svg>
+      <p class="gate-kicker">Microsoft Tech Community</p>
+      <h1 class="gate-title logo">Welcome to the Crypt</h1>
+      <p class="motto">Creep. Code. Create.</p>
+      <p class="ransom" data-ransom>Spooky Stories. Killer Interfaces.</p>
+      <p class="gate-text">Round 2 is upon you. The spirits are restless tonight.<br>Turn your sound up…<button class="egg" type="button" tabindex="-1" data-egg="gate" aria-label="pumpkin">🎃</button> and enter, if you dare.</p>
+      <button class="btn btn-blood gate-btn" id="gateEnter" type="button">Enter the Crypt</button>
+      <button class="gate-quiet" id="gateQuiet" type="button">enter quietly (no sound)</button>
+      <p class="gate-when"><span>29 Oct '26</span><i aria-hidden="true"></i><span>2:30 PM onwards</span></p>
+    </div>
+  </div>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </span>
+      <span class="brand-text">Microsoft Tech Community<small>Amity Noida</small></span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="scareBtn" type="button" aria-pressed="true" aria-label="Jump scares on" title="Jump scares">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ghost" d="M12 3a7 7 0 0 0-7 7v10l2.3-1.6L9.7 20l2.3-1.6 2.3 1.6 2.4-1.6L19 20V10a7 7 0 0 0-7-7z"/><circle class="ghost-eye" cx="9.5" cy="10" r="1.2"/><circle class="ghost-eye" cx="14.5" cy="10" r="1.2"/><path class="mute" d="M3 3l18 18"/></svg>
+      </button>
+      <button class="icon-btn" id="soundBtn" type="button" aria-pressed="false" aria-label="Turn sound on">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l5 6M21 9l-5 6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="altar" id="app">
+
+    <section class="hero">
+      <h1 class="title logo" data-text="Your Fate Awaits"><span class="title-line">Your Fate Awaits</span></h1>
+      <p class="motto">Creep. Code. Create.</p>
+      <p class="tagline"><b>Round 2 · The Build</b> Spin for a soul, inherit its dilemma, and build the web experience that sets it free.</p>
+    </section>
+
+    <ol class="seals" id="seals" aria-label="Ritual progress">
+      <li data-step="1"><span class="seal-num">I</span><span class="seal-name">The Soul</span></li>
+      <li data-step="2"><span class="seal-num">II</span><span class="seal-name">The Curse</span></li>
+      <li data-step="3"><span class="seal-num">III</span><span class="seal-name">The Hex</span><button class="egg" type="button" tabindex="-1" data-egg="seals" aria-label="pumpkin">🎃</button></li>
+      <li data-step="4"><span class="seal-num">IV</span><span class="seal-name">The Twist</span></li>
+    </ol>
+
+    <!-- View Switcher (Active when Round 2 Build is unlocked) -->
+    <nav class="view-tabs" id="viewTabs" aria-label="Ritual views" hidden>
+      <button class="view-tab is-active" id="tabMission" type="button" data-view="mission">
+        <span class="tab-icon">🚀</span>
+        <span class="tab-label">Round 2 · The Build</span>
+      </button>
+      <button class="view-tab" id="tabWheel" type="button" data-view="wheel">
+        <span class="tab-icon">🎡</span>
+        <span class="tab-label">Wheel of Fate</span>
+      </button>
+    </nav>
+
+    <!-- ===== Stage: sign the ledger ===== -->
+    <section class="panel ledger-panel" id="ledgerPanel" hidden>
+      <div class="parchment">
+        <p class="panel-kicker">Round 2 — The Build</p>
+        <h2 class="panel-title">Sign the Ledger</h2>
+        <p class="panel-lede">Transform your character's dilemma into a creative, interactive web experience. But first, write your team's name in the book of the damned.</p>
+        <form id="ledgerForm" autocomplete="off" novalidate>
+          <label class="field">
+            <span class="field-label">Team name</span>
+            <input id="teamInput" name="team" type="text" maxlength="40" required placeholder="e.g. The Midnight Coders" spellcheck="false" autocapitalize="words">
+          </label>
+          <p class="field-error" id="teamError" role="alert"></p>
+          <button class="btn btn-blood" type="submit">
+            <span>Begin the Ritual</span>
+          </button>
+        </form>
+        <ul class="rules">
+          <li><b>I.</b><span>The first wheel gives you a soul — and that soul spins the rest for you.</span></li>
+          <li><b>II.</b><span>Your soul's curse: the small site you must build to help it.</span></li>
+          <li><b>III.</b><span>A hex on how you're allowed to build your UI.</span></li>
+          <li><b>IV.</b><span><span id="rulesDelay">15</span> minutes later, the twist awakens.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== Stage: the wheel ===== -->
+    <section class="panel wheel-panel" id="wheelPanel" hidden>
+      <div class="wheel-col">
+        <header class="wheel-head">
+          <p class="wheel-kicker" id="wheelKicker">Wheel I</p>
+          <h2 class="wheel-title" id="wheelTitle">Choose Your Soul</h2>
+          <p class="wheel-sub" id="wheelSub"></p>
+        </header>
+
+        <div class="wheel-stage" id="wheelStage">
+          <div class="wheel-aura"></div>
+          <div class="wheel-rotor" id="wheelRotor">
+            <canvas id="wheelCanvas" aria-hidden="true"></canvas>
+          </div>
+
+          <!-- pointer -->
+          <svg class="pointer" id="pointer" viewBox="0 0 60 90" aria-hidden="true">
+            <defs>
+              <linearGradient id="blade" x1="0" x2="1">
+                <stop offset="0" stop-color="#8f8a99"/><stop offset=".5" stop-color="#f2eef8"/><stop offset="1" stop-color="#77717f"/>
+              </linearGradient>
+            </defs>
+            <path d="M30 88 L19 30 H41 Z" fill="url(#blade)" stroke="#1a1020" stroke-width="1.5"/>
+            <path d="M30 86 L30 32" stroke="#ffffff" stroke-opacity=".5" stroke-width="1"/>
+            <path d="M30 88 L27 70 Q30 76 33 70Z" fill="#a50f25"/>
+            <rect x="10" y="22" width="40" height="9" rx="4" fill="#3a2a12" stroke="#1a1020" stroke-width="1.5"/>
+            <rect x="24" y="2" width="12" height="22" rx="4" fill="#2b1a0b" stroke="#1a1020" stroke-width="1.5"/>
+            <circle cx="30" cy="5" r="5" fill="#a50f25" stroke="#1a1020" stroke-width="1.5"/>
+          </svg>
+
+          <!-- the eye in the centre -->
+          <button class="hub" id="hub" type="button" aria-label="Spin the wheel">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <radialGradient id="sclera" cx=".5" cy=".45" r=".6">
+                  <stop offset="0" stop-color="#fff6e8"/><stop offset=".7" stop-color="#e9d9c4"/><stop offset="1" stop-color="#b98f86"/>
+                </radialGradient>
+                <radialGradient id="irisGrad">
+                  <stop offset="0" stop-color="#ffd25a"/><stop offset=".45" stop-color="#d9480f"/><stop offset="1" stop-color="#5a0d0d"/>
+                </radialGradient>
+                <clipPath id="eyeClip"><path d="M8 50 Q50 14 92 50 Q50 86 8 50Z"/></clipPath>
+              </defs>
+              <circle cx="50" cy="50" r="48" fill="#140506" stroke="#4a1512" stroke-width="3"/>
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#ff3326" stroke-opacity=".45" stroke-width="1"/>
+              <g clip-path="url(#eyeClip)">
+                <rect x="0" y="0" width="100" height="100" fill="url(#sclera)"/>
+                <g stroke="#b3122e" stroke-width=".8" fill="none" opacity=".55">
+                  <path d="M10 50 q10 -3 16 2 t10 -2"/><path d="M90 50 q-9 4 -15 0 t-10 3"/><path d="M14 44 q8 0 12 4"/><path d="M86 56 q-8 0 -12 -4"/>
+                </g>
+                <g class="iris" id="iris">
+                  <circle cx="50" cy="50" r="17" fill="url(#irisGrad)"/>
+                  <ellipse class="pupil" id="pupil" cx="50" cy="50" rx="3.6" ry="12" fill="#050203"/>
+                  <circle cx="44" cy="44" r="3" fill="#fff" opacity=".85"/>
+                </g>
+                <g class="lids" id="lids">
+                  <path class="lid-top" d="M0 0 H100 V50 Q50 14 0 50Z" fill="#1f0a0a"/>
+                  <path class="lid-bot" d="M0 100 H100 V50 Q50 86 0 50Z" fill="#1f0a0a"/>
+                </g>
+              </g>
+              <path d="M8 50 Q50 14 92 50 Q50 86 8 50Z" fill="none" stroke="#050205" stroke-width="2.5"/>
+            </svg>
+          </button>
+
+          <!-- locked overlay for the twist wheel -->
+          <div class="chains" id="chains" hidden>
+            <svg class="chain-svg" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <pattern id="links" width="34" height="16" patternUnits="userSpaceOnUse">
+                  <rect x="2" y="3" width="22" height="10" rx="5" fill="none" stroke="#8a8394" stroke-width="3.5"/>
+                  <rect x="19" y="5.5" width="14" height="5" rx="2.5" fill="none" stroke="#5e5868" stroke-width="3"/>
+                </pattern>
+              </defs>
+              <g class="chain c1"><rect x="-60" y="192" width="520" height="16" fill="url(#links)" transform="rotate(45 200 200)"/></g>
+              <g class="chain c2"><rect x="-60" y="192" width="520" height="16" fill="url(#links)" transform="rotate(-45 200 200)"/></g>
+            </svg>
+            <div class="lock">
+              <svg viewBox="0 0 64 80" aria-hidden="true">
+                <path d="M16 36 V24 a16 16 0 0 1 32 0 V36" fill="none" stroke="#8a8394" stroke-width="7"/>
+                <rect x="6" y="34" width="52" height="42" rx="7" fill="#3c2f22" stroke="#140c08" stroke-width="2"/>
+                <circle cx="32" cy="52" r="5" fill="#0b0604"/><path d="M30 54 h4 l2 12 h-8z" fill="#0b0604"/>
+              </svg>
+              <div class="countdown" id="countdown" role="timer" aria-live="off">15:00</div>
+              <div class="countdown-label">until the twist awakens</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- the haunted spinner: The Eye at first, then the team's own soul -->
+        <div class="spinner" id="spinner">
+          <div class="spinner-face" id="spinnerFace" aria-hidden="true">👁️</div>
+          <div class="spinner-bubble">
+            <p class="spinner-name" id="spinnerName">The Eye</p>
+            <p class="spinner-line" id="spinnerLine" aria-live="polite">Let me look… let me choose.</p>
+          </div>
+        </div>
+
+        <div class="wheel-actions">
+          <button class="btn btn-blood btn-spin" id="spinBtn" type="button">
+            <span id="spinLabel">Spin the Wheel</span>
+          </button>
+          <p class="spin-hint" id="spinHint">or tap the <button class="egg" type="button" tabindex="-1" data-egg="whisper" aria-label="pumpkin">🎃</button>eye</p>
+        </div>
+      </div>
+
+      <!-- ===== The grimoire — collected fate ===== -->
+      <aside class="grimoire" aria-labelledby="grimoireTitle">
+        <div class="grimoire-inner">
+          <p class="grimoire-team" id="grimoireTeam"></p>
+          <h2 class="grimoire-title" id="grimoireTitle">Your <button class="egg" type="button" tabindex="-1" data-egg="grimoire" aria-label="pumpkin">🎃</button>Grimoire</h2>
+          <ol class="fate-list" id="fateList">
+            <li class="fate" data-slot="1">
+              <span class="fate-num">I</span>
+              <div class="fate-body"><p class="fate-label">The Soul</p><p class="fate-name">???</p><p class="fate-desc"></p></div>
+            </li>
+            <li class="fate" data-slot="2">
+              <span class="fate-num">II</span>
+              <div class="fate-body"><p class="fate-label">The Curse</p><p class="fate-name">???</p><p class="fate-desc"></p></div>
+            </li>
+            <li class="fate" data-slot="3">
+              <span class="fate-num">III</span>
+              <div class="fate-body"><p class="fate-label">The Hex</p><p class="fate-name">???</p><p class="fate-desc"></p></div>
+            </li>
+            <li class="fate" data-slot="4">
+              <span class="fate-num">IV</span>
+              <div class="fate-body"><p class="fate-label">The Twist</p><p class="fate-name">???</p><p class="fate-desc"></p></div>
+            </li>
+          </ol>
+          <p class="egg-count" id="eggCount" hidden></p>
+          <div class="grimoire-foot" id="grimoireFoot" hidden>
+            <p class="sealed-msg">Your fate is sealed. The ritual is complete.</p>
+            <p class="sealed-sub">This phone is bound to your team. There is no going back.</p>
+
+            <!-- ============ SUBMISSION PANEL ============ -->
+            <div class="sub-panel" id="submissionCard">
+              <div class="sub-header">
+                <span class="sub-tag">Round 2 · The Build</span>
+                <h3 class="sub-title">Submit Your Project</h3>
+              </div>
+
+              <div class="sub-body">
+                <div class="sub-left">
+                  <div class="sub-instructions">
+                    <p class="sub-notice">⚡ <b>The Twist is Announced!</b> You have received all four seals of fate.</p>
+                    <ol class="sub-steps">
+                      <li><strong>Build:</strong> Craft your web experience incorporating your Soul, Curse, Hex, and Twist.</li>
+                      <li><strong>Host:</strong> Deploy your website online and ensure it is publicly accessible.</li>
+                      <li><strong>Submit:</strong> Paste your live hosted link below so judges can view and evaluate your project.</li>
+                    </ol>
+                    <div class="sub-platforms">
+                      <span class="sub-platforms-title">Recommended Free Hosting Platforms:</span>
+                      <div class="host-badges">
+                        <span class="host-pill">▲ Vercel</span>
+                        <span class="host-pill">💎 Netlify</span>
+                        <span class="host-pill">🐙 GitHub Pages</span>
+                        <span class="host-pill">⚡ Render</span>
+                        <span class="host-pill">☁️ Cloudflare</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sub-right">
+                  <!-- Form for entering links -->
+                  <form class="sub-form" id="submissionForm" novalidate autocomplete="off">
+                    <label class="sub-label">
+                      <span class="sub-label-text">🌐 Live Hosted Website URL <span class="sub-req">*</span></span>
+                      <input type="url" id="subUrl" class="sub-input" placeholder="https://your-team.vercel.app" required spellcheck="false" autocomplete="off">
+                    </label>
+                    <label class="sub-label">
+                      <span class="sub-label-text">📁 GitHub Repository URL <span class="sub-opt">(optional)</span></span>
+                      <input type="url" id="subRepo" class="sub-input" placeholder="https://github.com/username/project" spellcheck="false" autocomplete="off">
+                    </label>
+                    <p class="sub-error" id="subError" role="alert" hidden></p>
+                    <button type="submit" class="btn btn-blood sub-btn" id="subSubmitBtn">
+                      <span id="subSubmitLabel">Submit Project Link</span>
+                    </button>
+                  </form>
+
+                  <!-- State when project has been submitted -->
+                  <div class="sub-result" id="subResult" hidden>
+                    <div class="sub-result-card">
+                      <div class="sub-result-icon" aria-hidden="true">⚡</div>
+                      <div class="sub-result-details">
+                        <p class="sub-result-status">Project Submitted</p>
+                        <p class="sub-result-time" id="subResultTime"></p>
+                        <div class="sub-result-links">
+                          <a class="sub-live-link" id="subLiveLink" href="#" target="_blank" rel="noopener">🌐 Open Live Site ↗</a>
+                          <a class="sub-repo-link" id="subRepoLink" href="#" target="_blank" rel="noopener" hidden>📁 View Code ↗</a>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-ghost btn-sm sub-edit-btn" id="subEditBtn">Update Links</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <p>Microsoft Tech Community · <button class="egg" type="button" tabindex="-1" data-egg="footer" aria-label="pumpkin">🎃</button>Build for the other side · <span id="year">2026</span></p>
+  </footer>
+
+  <!-- ============ FATE CARD (result reveal) ============ -->
+  <div class="reveal" id="reveal" hidden>
+    <div class="reveal-backdrop"></div>
+    <div class="card-scene" role="dialog" aria-modal="true" aria-labelledby="cardName" aria-describedby="cardDesc">
+      <div class="card" id="card">
+        <div class="card-face card-back" aria-hidden="true">
+          <div class="card-back-art"><span>✠</span></div>
+        </div>
+        <div class="card-face card-front">
+          <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span><button class="egg" type="button" tabindex="-1" data-egg="card" aria-label="pumpkin">🎃</button>
+          <p class="card-kicker" id="cardKicker">Your soul is</p>
+          <div class="card-glyph" id="cardGlyph" aria-hidden="true"></div>
+          <h3 class="card-name" id="cardName"></h3>
+          <p class="card-lore" id="cardLore"></p>
+          <p class="card-desc" id="cardDesc"></p>
+          <p class="card-scope" id="cardScope"></p>
+          <button class="btn btn-blood card-btn" id="cardBtn" type="button">Accept your fate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HOST PANEL ============ -->
+  <div class="modal host" id="hostModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-box host-box" role="dialog" aria-modal="true" aria-labelledby="hostTitle">
+      <header class="host-head">
+        <h2 id="hostTitle">Host Ledger</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Close host ledger">✕</button>
+      </header>
+      <div class="host-body">
+        <p class="host-mode" id="hostMode"></p>
+        <section class="host-auth" id="hostAuth" hidden>
+          <form id="hostLogin" class="host-login" autocomplete="on">
+            <div id="hostSignedOut">
+              <p class="host-hint">Anyone can view the ledger. Sign in as the host to release claims, change the timer or wipe the event.</p>
+              <div class="host-login-row">
+                <input id="hostEmail" type="email" placeholder="Host email" autocomplete="username" required>
+                <input id="hostPass" type="password" placeholder="Password" autocomplete="current-password" required>
+                <button class="btn btn-ghost btn-sm" type="submit">Sign in</button>
+              </div>
+            </div>
+            <div id="hostSignedIn" hidden>
+              <p class="host-hint">Signed in as host: <b id="hostWho"></b>. Don't spin for a team on this phone while signed in.</p>
+              <button class="btn btn-ghost btn-sm" id="hostLogout" type="button">Sign out</button>
+            </div>
+          </form>
+        </section>
+        <section>
+          <h3>Souls remaining</h3>
+          <div class="host-stats" id="hostStats"></div>
+        </section>
+        <section>
+          <h3>Teams <span id="hostCount"></span></h3>
+          <div class="host-table-wrap"><table class="host-table" id="hostTable"></table></div>
+        </section>
+        <section class="host-tools">
+          <h3>Tools</h3>
+          <label class="host-inline">Twist delay (minutes)
+            <input id="hostDelay" type="number" min="0" max="120" step="0.5">
+            <span class="host-hint" id="hostDelayHint"></span>
+          </label>
+          <div class="host-btns">
+            <a class="btn btn-blood btn-sm" id="hostJudges" href="judges.html" target="_blank" rel="noopener">Open judges' board ↗</a>
+            <button class="btn btn-ghost btn-sm" id="hostExport" type="button">Export ledger (.json)</button>
+            <button class="btn btn-ghost btn-sm" id="hostCsv" type="button">Export spreadsheet (.csv)</button>
+            <label class="btn btn-ghost btn-sm file-btn" id="hostImportLabel">Merge ledger from another device
+              <input id="hostImport" type="file" accept="application/json,.json">
+            </label>
+            <button class="btn btn-ghost btn-sm" id="hostFree" type="button">Free this phone for a new team</button>
+            <button class="btn btn-blood btn-sm" id="hostReset" type="button">Wipe entire ledger</button>
+          </div>
+          <p class="host-note" id="hostNote"></p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="sr-only" id="announcer" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/ledger.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/creatures.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/eggs.js"></script>
+</body>
+</html>
