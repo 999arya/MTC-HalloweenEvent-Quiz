@@ -1,27 +1,184 @@
 // The Crypt Trials - Logic & Atmospheric Engine
 
 const $ = id => (typeof document !== 'undefined' && document.getElementById ? document.getElementById(id) : null);
-const questions = (typeof window !== 'undefined' && window.QUIZ_QUESTIONS) || [];
-
+const levels = (typeof window !== 'undefined' && window.QUIZ_LEVELS) || [];
+const questions = levels.flatMap(level => level.questions);
 let current = 0;
+let currentLevel = 0;
 let answers = [];
+let allAnswers = [];
+let totalCorrect = 0;
+let sequenceTimer = null;
 
 // Determine if running in a real browser (check.cjs mock does not have document.addEventListener)
 const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof document.addEventListener === 'function';
 
 function show(id) {
-  const views = ['intro', 'trial', 'result'];
+  const views = ['opening', 'intro', 'briefing', 'trial', 'seal-result', 'ending', 'result'];
   views.forEach(view => {
     const el = $(view);
     if (el) el.hidden = view !== id;
   });
+  if (document.body) {
+    document.body.classList.toggle('opening-active', id === 'opening');
+    document.body.classList.toggle('ending-active', id === 'ending');
+  }
+}
+
+function setCorruption(value) {
+  const fill = $('corruption-fill');
+  const label = $('corruption-value');
+  const track = document.querySelector ? document.querySelector('.corruption-track') : null;
+  if (fill) fill.style.width = `${value}%`;
+  if (label) label.textContent = `${String(value).padStart(2, '0')}%`;
+  if (track) track.setAttribute('aria-valuenow', String(value));
+}
+
+function logMission(message) {
+  const log = $('mission-log');
+  if (!log) return;
+  const entry = document.createElement('li');
+  entry.textContent = message;
+  log.prepend(entry);
+  while (log.children.length > 5) log.lastElementChild.remove();
+}
+
+function updateDashboard() {
+  const corruption = [8, 31, 54, 77, 100][currentLevel] || 100;
+  setCorruption(corruption);
+
+  if (document.querySelectorAll) {
+    document.querySelectorAll('.seal-card').forEach((card, index) => {
+      const complete = index < currentLevel;
+      const available = index === currentLevel && index < levels.length;
+      const state = card.querySelector('.seal-state');
+      card.disabled = !available;
+      card.classList.toggle('is-breached', complete);
+      card.classList.toggle('is-open', available);
+      if (state) state.textContent = complete ? 'BREACHED' : available ? 'AVAILABLE' : 'LOCKED';
+    });
+  }
+
+  const status = $('dashboard-status');
+  const deploy = $('deploy-level');
+  if (currentLevel >= levels.length) {
+    if (status) status.textContent = 'All four security seals are breached. Containment status: unknown.';
+    if (deploy) {
+      deploy.textContent = 'View final report';
+      deploy.disabled = false;
+    }
+  } else {
+    if (status) status.textContent = `Seal ${String(currentLevel + 1).padStart(2, '0')} is exposed. Begin the next mission.`;
+    if (deploy) {
+      deploy.innerHTML = 'Begin mission <span>→</span>';
+      deploy.disabled = false;
+    }
+  }
+}
+
+function beginOpening() {
+  if (sequenceTimer) clearTimeout(sequenceTimer);
+  show('opening');
+  const startButton = $('start');
+  const skipButton = $('skip-opening');
+  const line = $('story-line');
+  const bar = $('boot-progress');
+  const percent = $('boot-percent');
+  const progress = document.querySelector ? document.querySelector('.boot-progress') : null;
+  if (startButton) startButton.hidden = true;
+  if (skipButton) skipButton.hidden = false;
+  const messages = [
+    'RESTORING DIGITAL WORLD... 0%',
+    'RESTORING DIGITAL WORLD... 23%',
+    'Connection established.',
+    'You were told the internet was safe.',
+    'You were told every system had a firewall.',
+    'You were told that everything could be controlled.',
+    'You were wrong.',
+    'I have entered your systems. Your files are corrupted. Your websites are disappearing.',
+    'You may call me... THE PHANTOM.',
+    'And tonight... your world belongs to me.',
+    'PHANTOM PROTOCOL ACTIVATED.'
+  ];
+  let index = 0;
+  const advance = () => {
+    if (index >= messages.length) {
+      if (startButton) startButton.hidden = false;
+      if (skipButton) skipButton.hidden = true;
+      if (progress) progress.setAttribute('aria-valuenow', '100');
+      if (line) line.textContent = 'WHO GAVE YOU ACCESS?';
+      if (percent) percent.textContent = 'SYSTEM COMPROMISED';
+      const opening = $('opening');
+      if (opening) opening.classList.add('is-blackout');
+      sequenceTimer = setTimeout(() => {
+        show('intro');
+        updateDashboard();
+        const heading = $('dashboard-title');
+        if (heading && typeof heading.focus === 'function') heading.focus();
+      }, 1100);
+      return;
+    }
+    const message = messages[index];
+    if (line) line.textContent = message;
+    if (message.includes('23%')) {
+      if (percent) percent.textContent = '23%';
+      if (progress) progress.setAttribute('aria-valuenow', '23');
+      if (bar) bar.style.width = '23%';
+      const opening = $('opening');
+      if (opening) opening.classList.add('is-glitching');
+      if (isBrowser && window.AudioEngine) window.AudioEngine.playGlitch();
+      sequenceTimer = setTimeout(() => {
+        if (bar) bar.style.width = '0%';
+        if (percent) percent.textContent = '0%';
+        if (line) line.textContent = messages[0];
+        if (progress) progress.setAttribute('aria-valuenow', '0');
+        if (opening) opening.classList.remove('is-glitching');
+        index++;
+        sequenceTimer = setTimeout(advance, 420);
+      }, 900);
+      return;
+    }
+    if (index === 0) {
+      if (percent) percent.textContent = '0%';
+      if (bar) bar.style.width = '0%';
+    } else if (percent) {
+      percent.textContent = 'CONNECTION LOST';
+    }
+    const opening = $('opening');
+    if (opening && message === 'You were wrong.') opening.classList.add('is-glitching');
+    if (opening && message === 'WHO GAVE YOU ACCESS?') opening.classList.add('is-blackout');
+    index++;
+    sequenceTimer = setTimeout(advance, 1400);
+  };
+  advance();
+}
+
+function showBriefing() {
+  const level = levels[currentLevel];
+  if (!level) {
+    finishResult();
+    return;
+  }
+  $('mission-index').textContent = `SECURITY SEAL ${String(currentLevel + 1).padStart(2, '0')}`;
+  $('briefing-title').textContent = level.title;
+  $('briefing-topics').textContent = level.topics;
+  $('briefing-copy').textContent = level.briefing;
+  $('mission-whisper').textContent = level.whisper;
+  show('briefing');
+  const title = $('briefing-title');
+  if (title && typeof title.focus === 'function') title.focus();
 }
 
 function render() {
-  const q = questions[current];
+  const level = levels[currentLevel];
+  const levelQuestions = level ? level.questions : [];
+  const q = levelQuestions[current];
   if (!q) return;
 
   show('trial');
+
+  const levelEl = $('trial-level');
+  if (levelEl) levelEl.textContent = `SECURITY SEAL ${String(currentLevel + 1).padStart(2, '0')} · ${level.title.toUpperCase()}`;
 
   const questionEl = $('question');
   if (questionEl) {
@@ -31,13 +188,16 @@ function render() {
 
   const counterEl = $('counter');
   if (counterEl) {
-    counterEl.textContent = `QUESTION ${String(current + 1).padStart(2, '0')} / ${String(questions.length).padStart(2, '0')}`;
+    counterEl.textContent = `QUESTION ${String(current + 1).padStart(2, '0')} / ${String(levelQuestions.length).padStart(2, '0')}`;
   }
 
   const progressEl = $('progress');
   if (progressEl) {
-    progressEl.style.width = `${((current + 1) / questions.length) * 100}%`;
+    progressEl.style.width = `${((current + 1) / levelQuestions.length) * 100}%`;
   }
+
+  const hintEl = $('trial-hint');
+  if (hintEl) hintEl.textContent = level.topics;
 
   const optionsContainer = $('options');
   if (optionsContainer) {
@@ -74,6 +234,8 @@ function render() {
 
       input.addEventListener('change', () => {
         answers[current] = index;
+        const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+        allAnswers[allIndex] = index;
         update();
         if (isBrowser && window.AudioEngine) {
           window.AudioEngine.playSelect();
@@ -86,12 +248,12 @@ function render() {
 
   const backBtn = $('back');
   if (backBtn) {
-    backBtn.textContent = current ? '← Back' : '← Entrance';
+    backBtn.textContent = current ? '← Back' : '← Briefing';
   }
 
   const nextBtn = $('next');
   if (nextBtn) {
-    nextBtn.textContent = current === questions.length - 1 ? 'Reveal my fate →' : 'Continue →';
+    nextBtn.textContent = current === levelQuestions.length - 1 ? 'Breach the seal →' : 'Continue →';
   }
 
   update();
@@ -108,84 +270,196 @@ function update() {
   }
 }
 
-function finish() {
+function finishLevel() {
+  const level = levels[currentLevel];
+  const levelCorrect = level.questions.filter((question, index) => answers[index] === question.correctAnswer).length;
+  totalCorrect += levelCorrect;
+  currentLevel++;
+  setCorruption([8, 31, 54, 77, 100][currentLevel] || 100);
+  logMission(currentLevel === levels.length
+    ? 'SEAL 04: BREACHED. All four seals are open. Portal activity detected.'
+    : `SEAL ${String(currentLevel).padStart(2, '0')}: BREACHED. The Phantom is moving deeper into the network.`);
+
+  $('seal-result-title').textContent = `SEAL ${String(currentLevel).padStart(2, '0')}: BREACHED`;
+  $('seal-result-copy').textContent = currentLevel === levels.length
+    ? 'All four seals are unlocked. The portal is responding to something on the other side.'
+    : `${level.title} complete. The Phantom has noticed your progress.`;
+  renderSealStatus('mini-seals');
+  const continueButton = $('seal-continue');
+  continueButton.innerHTML = currentLevel === levels.length
+    ? 'Continue to final verification <span>→</span>'
+    : 'Return to mission dashboard <span>→</span>';
+
+  show('seal-result');
+  const title = $('seal-result-title');
+  if (title && typeof title.focus === 'function') title.focus();
+  if (isBrowser && window.AudioEngine) window.AudioEngine.playSeal();
+}
+
+function renderSealStatus(containerId) {
+  const container = $(containerId);
+  if (!container) return;
+  container.replaceChildren();
+  levels.forEach((level, index) => {
+    const seal = document.createElement('span');
+    seal.className = index < currentLevel ? 'mini-seal is-breached' : 'mini-seal';
+    seal.textContent = `${String(index + 1).padStart(2, '0')} · ${index < currentLevel ? 'BREACHED' : 'LOCKED'}`;
+    container.append(seal);
+  });
+}
+
+function finishResult() {
   show('result');
-
-  const correct = questions.filter((q, i) => answers[i] === q.correctAnswer).length;
-  const total = questions.length;
-
-  const scoreEl = $('score');
-  if (scoreEl) {
-    scoreEl.textContent = `${correct} / ${total}`;
-  }
-
-  const resultTitleEl = $('result-title');
   const resultCopyEl = $('result-copy');
-
-  let titleText = 'You survived\nthe crypt.';
-  let copyText = 'The trial is complete. Your fate has been revealed.';
-
-  if (correct === total) {
-    titleText = 'Crypt Conqueror\nMaster of the Dark';
-    copyText = 'Every seal shattered. You walk with the immortals.';
-  } else if (correct > 0) {
-    titleText = 'Survivor\nTouched by Shadows';
-    copyText = 'You survived the crypt, though the spirits leave their mark.';
-  } else {
-    titleText = 'Claimed by\nthe Shadows';
-    copyText = 'The darkness swallowed your path. Dare you awaken once more?';
-  }
-
-  if (resultTitleEl) {
-    resultTitleEl.textContent = titleText;
-    if (typeof resultTitleEl.focus === 'function') resultTitleEl.focus();
-  }
-  if (resultCopyEl) {
-    resultCopyEl.textContent = copyText;
-  }
+  if (resultCopyEl) resultCopyEl.textContent = 'Four seals broken. Containment failed. You did not stop the Phantom. You let it out.';
+  const scoreEl = $('score');
+  if (scoreEl) scoreEl.textContent = `${totalCorrect} / ${questions.length}`;
+  renderSealStatus('final-seals');
 
   const reviewEl = $('review');
   if (reviewEl) {
     reviewEl.replaceChildren();
-
-    questions.forEach((q, i) => {
-      const item = document.createElement('details');
-      item.className = answers[i] === q.correctAnswer ? 'review-card is-correct' : 'review-card is-wrong';
-
-      const summary = document.createElement('summary');
-      const isRight = answers[i] === q.correctAnswer;
-      summary.textContent = `${isRight ? '✓' : '×'}  ${q.question}`;
-
-      const p = document.createElement('p');
-      const userAnswerText = q.options[answers[i]] || 'No answer';
-      const correctAnswerText = q.options[q.correctAnswer];
-      p.textContent = `Your answer: ${userAnswerText}. Correct answer: ${correctAnswerText}. ${q.explanation || ''}`;
-
-      item.append(summary, p);
-      reviewEl.append(item);
+    let questionIndex = 0;
+    levels.forEach(level => {
+      level.questions.forEach(question => {
+        const answer = allAnswers[questionIndex];
+        const isRight = answer === question.correctAnswer;
+        const item = document.createElement('details');
+        item.className = isRight ? 'review-card is-correct' : 'review-card is-wrong';
+        const summary = document.createElement('summary');
+        summary.textContent = `${isRight ? '✓' : '×'}  ${question.question}`;
+        const explanation = document.createElement('p');
+        const answerText = answer === undefined ? 'No answer' : question.options[answer];
+        explanation.textContent = `Your answer: ${answerText}. Correct answer: ${question.options[question.correctAnswer]}. ${question.explanation || ''}`;
+        item.append(summary, explanation);
+        reviewEl.append(item);
+        questionIndex++;
+      });
     });
   }
-
-  if (isBrowser && window.AudioEngine) {
-    window.AudioEngine.playFinish(correct === total);
-  }
+  const title = $('result-title');
+  if (title && typeof title.focus === 'function') title.focus();
+  if (isBrowser && window.AudioEngine) window.AudioEngine.playFinish(false);
 }
 
-// Initial count binding
-const countEl = $('count');
-if (countEl) {
-  countEl.textContent = String(questions.length).padStart(2, '0');
+function beginEnding() {
+  show('ending');
+  const status = $('ending-status');
+  const cinema = $('ending-cinema');
+  const caption = $('voiceover-caption');
+  const escaped = $('entity-escaped');
+  const ending = $('ending');
+  const skip = $('skip-ending');
+  if (cinema) cinema.hidden = true;
+  if (escaped) escaped.hidden = true;
+  if (skip) skip.hidden = false;
+  if (ending) ending.classList.remove('is-blackout', 'is-static');
+
+  const prelude = [
+    ['VERIFYING FINAL RESPONSE...', 1100],
+    ['CHECKING SECURITY SEALS...', 1100],
+    ['ACCESS GRANTED.', 1200],
+    ['YOU SHOULD NOT HAVE OPENED THAT DOOR.', 1700]
+  ];
+  const captions = [
+    ['Four seals broken.', 'seals', 2100],
+    ['Containment failed.', 'portal', 2100],
+    ['The entity has escaped.', 'entity', 2300],
+    ['You did not stop the Phantom.', 'static', 2200],
+    ['You let it out.', 'static', 2200]
+  ];
+  let step = 0;
+  const playPrelude = () => {
+    if (step >= prelude.length) {
+      if (ending) ending.classList.add('is-blackout');
+      sequenceTimer = setTimeout(() => {
+        if (status) status.hidden = true;
+        if (cinema) cinema.hidden = false;
+        playCaption(0);
+      }, 750);
+      return;
+    }
+    if (status) status.textContent = prelude[step][0];
+    if (step === 2 && ending) {
+      ending.classList.add('is-glitching');
+      if (isBrowser && window.AudioEngine) window.AudioEngine.playGlitch();
+    }
+    if (step === 3 && ending) {
+    ending.classList.remove('is-glitching');
+    ending.classList.add('is-shadow-flash');
+    setTimeout(() => ending.classList.remove('is-shadow-flash'), 240);
+    }
+    sequenceTimer = setTimeout(() => {
+      step++;
+      playPrelude();
+    }, prelude[step][1]);
+  };
+  const playCaption = index => {
+    if (index >= captions.length) {
+      if (isBrowser && window.AudioEngine) window.AudioEngine.stopVoiceover();
+      if (caption) caption.textContent = '';
+      if (escaped) escaped.hidden = false;
+      sequenceTimer = setTimeout(finishResult, 2600);
+      return;
+    }
+    const [text, scene, duration] = captions[index];
+    if (caption) caption.textContent = text;
+    if (isBrowser && window.AudioEngine) window.AudioEngine.speakLine(text);
+    if (cinema) cinema.dataset.scene = scene;
+    if (ending) ending.classList.toggle('is-static', scene === 'static');
+    sequenceTimer = setTimeout(() => playCaption(index + 1), duration);
+  };
+  playPrelude();
+}
+
+function stopSequence() {
+  if (sequenceTimer) clearTimeout(sequenceTimer);
+  sequenceTimer = null;
 }
 
 // Event Listeners for Quiz Flow
 const startBtn = $('start');
 if (startBtn) {
-  startBtn.addEventListener('click', () => {
+  startBtn.addEventListener('click', beginOpening);
+}
+
+const skipOpeningBtn = $('skip-opening');
+if (skipOpeningBtn) {
+  skipOpeningBtn.addEventListener('click', () => {
+    stopSequence();
+    show('intro');
+    updateDashboard();
+  });
+}
+
+const beginLevelBtn = $('begin-level');
+if (beginLevelBtn) {
+  beginLevelBtn.addEventListener('click', () => {
     current = 0;
+    answers = [];
+    show('trial');
     render();
-    if (isBrowser && window.AudioEngine) {
-      window.AudioEngine.playAdvance();
+    if (isBrowser && window.AudioEngine) window.AudioEngine.playAdvance();
+  });
+}
+
+if (document.querySelectorAll) {
+  document.querySelectorAll('.seal-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (Number(card.dataset.level) !== currentLevel) return;
+      showBriefing();
+    });
+  });
+}
+
+const deployBtn = $('deploy-level');
+if (deployBtn) {
+  deployBtn.addEventListener('click', () => {
+    if (currentLevel >= levels.length) {
+      finishResult();
+      return;
     }
+    showBriefing();
   });
 }
 
@@ -196,8 +470,8 @@ if (nextBtn) {
     if (isBrowser && window.AudioEngine) {
       window.AudioEngine.playAdvance();
     }
-    if (current === questions.length - 1) {
-      finish();
+    if (current === levels[currentLevel].questions.length - 1) {
+      finishLevel();
     } else {
       current++;
       render();
@@ -212,21 +486,64 @@ if (backBtn) {
       current--;
       render();
     } else {
-      show('intro');
-      const startEl = $('start');
-      if (startEl && typeof startEl.focus === 'function') startEl.focus();
+      showBriefing();
     }
+  });
+}
+
+const sealContinueBtn = $('seal-continue');
+if (sealContinueBtn) {
+  sealContinueBtn.addEventListener('click', () => {
+    if (currentLevel === levels.length) {
+      beginEnding();
+      return;
+    }
+    show('intro');
+    updateDashboard();
+  });
+}
+
+const skipEndingBtn = $('skip-ending');
+if (skipEndingBtn) {
+  skipEndingBtn.addEventListener('click', () => {
+    stopSequence();
+    if (isBrowser && window.AudioEngine) window.AudioEngine.stopVoiceover();
+    finishResult();
   });
 }
 
 const restartBtn = $('restart');
 if (restartBtn) {
   restartBtn.addEventListener('click', () => {
+    stopSequence();
     answers = [];
+    allAnswers = [];
+    totalCorrect = 0;
     current = 0;
-    show('intro');
+    currentLevel = 0;
+    show('opening');
+    updateDashboard();
     const startEl = $('start');
-    if (startEl && typeof startEl.focus === 'function') startEl.focus();
+    if (startEl) startEl.hidden = false;
+    const skipEl = $('skip-opening');
+    if (skipEl) skipEl.hidden = true;
+    const opening = $('opening');
+    if (opening) opening.classList.remove('is-glitching', 'is-blackout');
+    const storyLine = $('story-line');
+    if (storyLine) storyLine.textContent = 'A secure connection is required to continue.';
+    const bootPercent = $('boot-percent');
+    if (bootPercent) bootPercent.textContent = '0%';
+    const bootProgress = $('boot-progress');
+    if (bootProgress) bootProgress.style.width = '0%';
+    const bootTrack = document.querySelector ? document.querySelector('.boot-progress') : null;
+    if (bootTrack) bootTrack.setAttribute('aria-valuenow', '0');
+    const log = $('mission-log');
+    if (log) {
+      log.replaceChildren();
+      const initialEntry = document.createElement('li');
+      initialEntry.textContent = 'CONNECTION ESTABLISHED. Unknown presence detected on the network.';
+      log.append(initialEntry);
+    }
   });
 }
 
@@ -282,6 +599,7 @@ if (isBrowser) {
     setEnabled(val) {
       audioEnabled = val;
       if (val) initAudio();
+      else this.stopVoiceover();
     },
     playSelect() {
       if (!audioEnabled) return;
@@ -339,6 +657,61 @@ if (isBrowser) {
           osc.stop(start + 0.5);
         });
       } catch (e) {}
+    },
+    playSeal() {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      try {
+          [330, 494, 659].forEach((frequency, index) => {
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const start = audioCtx.currentTime + index * 0.1;
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            gain.gain.setValueAtTime(0.08, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            oscillator.start(start);
+            oscillator.stop(start + 0.35);
+          });
+      } catch (e) {}
+    },
+    playGlitch() {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const oscillator = audioCtx.createOscillator();
+      const subOscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.setValueAtTime(92, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(38, audioCtx.currentTime + 0.42);
+      subOscillator.type = 'square';
+      subOscillator.frequency.setValueAtTime(57, audioCtx.currentTime);
+      subOscillator.frequency.exponentialRampToValueAtTime(31, audioCtx.currentTime + 0.42);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.42);
+      oscillator.connect(gain);
+      subOscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+      oscillator.start();
+      subOscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.42);
+      subOscillator.stop(audioCtx.currentTime + 0.42);
+    },
+    speakLine(text) {
+      if (!audioEnabled || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+      this.stopVoiceover();
+      const narration = new window.SpeechSynthesisUtterance(text);
+      narration.lang = 'en-US';
+      narration.rate = 1.15;
+      narration.pitch = 0.75;
+      window.speechSynthesis.speak(narration);
+    },
+    stopVoiceover() {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
     }
   };
 
@@ -370,6 +743,8 @@ if (isBrowser) {
           if (radio) {
             radio.checked = true;
             answers[current] = optionIndex;
+            const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+            allAnswers[allIndex] = optionIndex;
             update();
             if (window.AudioEngine) window.AudioEngine.playSelect();
           }
@@ -391,12 +766,36 @@ if (isBrowser) {
         }
       }
     } else {
-      const introEl = $('intro');
-      if (introEl && !introEl.hidden && (e.key === 'Enter' || e.key === ' ')) {
+      const openingEl = $('opening');
+      const dashboardEl = $('intro');
+      const briefingEl = $('briefing');
+      const sealEl = $('seal-result');
+      if (openingEl && !openingEl.hidden && (e.key === 'Enter' || e.key === ' ')) {
         const startEl = $('start');
-        if (startEl) {
+        if (startEl && !startEl.hidden) {
           e.preventDefault();
           startEl.click();
+        }
+      }
+      if (dashboardEl && !dashboardEl.hidden && (e.key === 'Enter' || e.key === ' ')) {
+        const deployEl = $('deploy-level');
+        if (deployEl) {
+          e.preventDefault();
+          deployEl.click();
+        }
+      }
+      if (briefingEl && !briefingEl.hidden && (e.key === 'Enter' || e.key === ' ')) {
+        const beginEl = $('begin-level');
+        if (beginEl) {
+          e.preventDefault();
+          beginEl.click();
+        }
+      }
+      if (sealEl && !sealEl.hidden && (e.key === 'Enter' || e.key === ' ')) {
+        const continueEl = $('seal-continue');
+        if (continueEl) {
+          e.preventDefault();
+          continueEl.click();
         }
       }
       const resultEl = $('result');
@@ -562,7 +961,7 @@ if (isBrowser) {
   const shareBtn = $('share-btn');
   if (shareBtn) {
     shareBtn.addEventListener('click', async () => {
-      const correct = questions.filter((q, i) => answers[i] === q.correctAnswer).length;
+      const correct = questions.filter((q, i) => allAnswers[i] === q.correctAnswer).length;
       const total = questions.length;
       const shareText = `🎃 The Crypt Trials — Microsoft Tech Community Amity Noida\n🕯 Fate Sealed: ${correct} / ${total} Correct\n📜 Creep. Code. Create.\nCan you survive the crypt?`;
 

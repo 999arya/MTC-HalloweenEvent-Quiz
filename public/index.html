@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/original.css">
   <link rel="stylesheet" href="css/quiz.css">
 </head>
-<body>
+<body class="opening-active">
   <!-- ============ ATMOSPHERE ============ -->
   <div class="atmo" aria-hidden="true">
     <div class="sky"></div>
@@ -154,30 +154,52 @@
 
   <!-- ============ MAIN CONTENT ============ -->
   <main class="quiz-main">
-    <!-- Stage I: Introduction -->
-    <section class="intro" id="intro">
-      <p class="eyebrow"><span></span> THE PRELUDE · A TEST OF NERVE <span></span></p>
-      <h1>The Crypt<br><em>Trials</em></h1>
-      <p class="motto">Creep. Code. Create.</p>
-      <p class="lead">Before you enter the crypt,<br>prove you belong among the living.</p>
-      <div class="intro-details">
-        <span><b id="count">03</b> QUESTIONS</span>
-        <span><b>∞</b> NO TIME LIMIT</span>
-        <span><b>01</b> WAY OUT</span>
+    <section class="opening" id="opening" aria-labelledby="opening-title">
+      <p class="boot-label">SYSTEM RECOVERY CONSOLE <span>·</span> CONNECTION UNSTABLE</p>
+      <h1 id="opening-title">RESTORING<br><em>DIGITAL WORLD...</em></h1>
+      <div class="boot-progress" role="progressbar" aria-label="System restoration" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="boot-progress"></div>
       </div>
-      <button class="primary" id="start" type="button">Enter the trials <span>→</span></button>
-      <p class="demo-note">Preview edition · Sample questions only</p>
-      <div class="ritual-note">
-        <span>Ⅰ &nbsp; Enter the crypt</span>
-        <span>Ⅱ &nbsp; Face the questions</span>
-        <span>Ⅲ &nbsp; Discover your fate</span>
-      </div>
+      <p id="boot-percent" class="boot-percent">0%</p>
+      <p id="story-line" class="story-line" aria-live="assertive">A secure connection is required to continue.</p>
+      <button class="primary" id="start" type="button">Initialize connection <span>→</span></button>
+      <button class="secondary skip-story" id="skip-opening" type="button" hidden>Skip sequence</button>
     </section>
 
-    <!-- Stage II: Trial (Question) -->
+    <section class="intro dashboard" id="intro" hidden aria-labelledby="dashboard-title">
+      <p class="eyebrow"><span></span> INCIDENT 04-31 · LIVE BREACH <span></span></p>
+      <h1 id="dashboard-title">PHANTOM<br><em>PROTOCOL</em></h1>
+      <p class="lead">The network is compromised. Four seals stand between the Phantom and the outside world.</p>
+      <div class="corruption-panel">
+        <div class="corruption-heading"><span>CORRUPTION LEVEL</span><strong id="corruption-value">08%</strong></div>
+        <div class="corruption-track" role="progressbar" aria-label="System corruption" aria-valuemin="0" aria-valuemax="100" aria-valuenow="8"><span id="corruption-fill"></span></div>
+      </div>
+      <div class="seal-grid" id="seal-grid" aria-label="Security seals">
+        <button class="seal-card" type="button" data-level="0"><span class="seal-number">01</span><span class="seal-name">TECH TRIVIA</span><span class="seal-state">AVAILABLE</span></button>
+        <button class="seal-card" type="button" data-level="1" disabled><span class="seal-number">02</span><span class="seal-name">DEBUG THE DEAD</span><span class="seal-state">LOCKED</span></button>
+        <button class="seal-card" type="button" data-level="2" disabled><span class="seal-number">03</span><span class="seal-name">DSA AFTER DARK</span><span class="seal-state">LOCKED</span></button>
+        <button class="seal-card" type="button" data-level="3" disabled><span class="seal-number">04</span><span class="seal-name">PREDICT THE OUTPUT</span><span class="seal-state">LOCKED</span></button>
+      </div>
+      <div class="mission-log-panel">
+        <h2>MISSION LOG</h2>
+        <ol id="mission-log" aria-live="polite"><li>CONNECTION ESTABLISHED. Unknown presence detected on the network.</li></ol>
+      </div>
+      <div class="dashboard-actions"><span id="dashboard-status">Seal 01 is exposed. Begin the first mission.</span><button class="primary" id="deploy-level" type="button">Begin mission <span>→</span></button></div>
+    </section>
+
+    <section class="briefing" id="briefing" hidden aria-labelledby="briefing-title">
+      <p class="eyebrow"><span></span> MISSION BRIEFING <span></span></p>
+      <p class="mission-index" id="mission-index">SECURITY SEAL 01</p>
+      <h2 id="briefing-title"></h2>
+      <p class="briefing-topics" id="briefing-topics"></p>
+      <p class="briefing-copy" id="briefing-copy"></p>
+      <p class="mission-whisper" id="mission-whisper"></p>
+      <button class="primary" id="begin-level" type="button">Enter the breach <span>→</span></button>
+    </section>
+
     <section class="trial" id="trial" hidden aria-labelledby="question">
       <div class="trial-top">
-        <span class="eyebrow">THE CRYPT TRIALS</span>
+        <span class="eyebrow" id="trial-level">SECURITY SEAL 01</span>
         <span id="counter"></span>
       </div>
       <div class="progress-track">
@@ -185,7 +207,7 @@
       </div>
       <p class="question-kicker">A WHISPER FROM THE DARK</p>
       <h2 id="question" tabindex="-1"></h2>
-      <p class="hint">Choose one answer to break the seal.</p>
+      <p class="hint" id="trial-hint">Choose one answer to break the seal.</p>
       <fieldset id="options">
         <legend class="sr-only">Answer choices</legend>
       </fieldset>
@@ -194,20 +216,47 @@
         <span id="selection-status" aria-live="polite">Select an answer</span>
         <button class="primary" id="next" disabled type="button">Continue →</button>
       </div>
-      <p class="demo-note">Sample question · Final event questions coming soon</p>
+      <p class="demo-note">Preview edition · Sample questions only</p>
     </section>
 
-    <!-- Stage III: Result -->
-    <section class="result" id="result" hidden aria-labelledby="result-title">
-      <p class="eyebrow">THE FINAL SEAL IS BROKEN</p>
+    <section class="seal-result" id="seal-result" hidden aria-labelledby="seal-result-title">
+      <p class="eyebrow">SECURITY SEAL UPDATE</p>
       <div class="result-symbol" aria-hidden="true">✦</div>
-      <h2 id="result-title" tabindex="-1">You survived<br>the crypt.</h2>
+      <h2 id="seal-result-title">SEAL 01: BREACHED</h2>
+      <p id="seal-result-copy" class="lead"></p>
+      <div class="mini-seals" id="mini-seals" aria-label="Seal status"></div>
+      <button class="primary" id="seal-continue" type="button">Return to mission dashboard <span>→</span></button>
+    </section>
+
+    <section class="ending" id="ending" hidden aria-labelledby="ending-heading">
+      <p class="ending-status" id="ending-status" aria-live="assertive">VERIFYING FINAL RESPONSE...</p>
+      <h2 id="ending-heading" class="sr-only">Final security sequence</h2>
+      <div class="ending-cinema" id="ending-cinema" hidden>
+        <div class="cinema-art" aria-hidden="true">
+          <div class="server-rack rack-left"></div>
+          <div class="server-rack rack-right"></div>
+          <div class="cinema-seals"><i>01</i><i>02</i><i>03</i><i>04</i></div>
+          <div class="cinema-portal"></div>
+          <div class="cinema-entity"></div>
+          <div class="cinema-static"></div>
+        </div>
+        <p class="voiceover-caption" id="voiceover-caption" aria-live="assertive"></p>
+        <h2 class="entity-escaped" id="entity-escaped" hidden>ENTITY ESCAPED</h2>
+      </div>
+      <button class="secondary skip-story" id="skip-ending" type="button">Skip sequence</button>
+    </section>
+
+    <section class="result" id="result" hidden aria-labelledby="result-title">
+      <p class="eyebrow">PHANTOM PROTOCOL · FINAL REPORT</p>
+      <div class="result-symbol" aria-hidden="true">✦</div>
+      <h2 id="result-title" tabindex="-1">ENTITY ESCAPED</h2>
       <p class="lead" id="result-copy"></p>
       <p class="score" id="score"></p>
-      <p class="demo-note">This is a practice result, not an event qualification.</p>
+      <p class="demo-note">Practice mission · This score is not an event qualification.</p>
+      <div class="final-seals" id="final-seals" aria-label="All security seals"></div>
       <div id="review"></div>
       <div class="result-actions">
-        <button class="primary" id="restart" type="button">Enter again ↻</button>
+        <button class="primary" id="restart" type="button">Restart protocol ↻</button>
         <button class="secondary" id="share-btn" type="button">Copy Fate 📋</button>
       </div>
       <div id="share-toast" class="share-toast" role="status" aria-live="polite" hidden>Fate sealed to clipboard!</div>
