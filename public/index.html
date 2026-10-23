@@ -205,12 +205,57 @@
       <div class="progress-track">
         <div id="progress"></div>
       </div>
-      <p class="question-kicker">A WHISPER FROM THE DARK</p>
+      <p class="question-kicker" id="question-kicker">A WHISPER FROM THE DARK</p>
       <h2 id="question" tabindex="-1"></h2>
       <p class="hint" id="trial-hint">Choose one answer to break the seal.</p>
+
+      <!-- MCQ Options Container (Seals 1 & 3) -->
       <fieldset id="options">
         <legend class="sr-only">Answer choices</legend>
       </fieldset>
+
+      <!-- Code Editor Container (Seal 2: Debug the Dead) -->
+      <div class="code-editor-wrap" id="code-editor-wrap" hidden>
+        <div class="editor-header">
+          <div class="editor-tabs">
+            <span class="editor-tab active" id="editor-lang-tab">
+              <span class="tab-dot"></span>
+              <span id="editor-lang-name">code.py</span>
+            </span>
+          </div>
+          <div class="editor-actions">
+            <button class="editor-reset-btn" id="editor-reset" type="button" title="Reset to buggy starter code">Reset Starter Code ↺</button>
+            <span class="editor-badge">EDIT & FIX BUG</span>
+          </div>
+        </div>
+        <div class="editor-body">
+          <div class="editor-line-numbers" id="editor-line-numbers" aria-hidden="true">1</div>
+          <textarea class="editor-textarea" id="code-editor-input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Write your fixed code here..."></textarea>
+        </div>
+        <div class="editor-footer">
+          <span class="editor-instructions">⚡ Press Tab for indent (4 spaces). Fix the broken syntax/logic.</span>
+          <span class="editor-char-count" id="editor-char-count">0 lines</span>
+        </div>
+      </div>
+
+      <!-- Predict Output Text Input Container (Seal 4: Predict the Output) -->
+      <div class="output-input-wrap" id="output-input-wrap" hidden>
+        <div class="terminal-card">
+          <div class="terminal-bar">
+            <span class="terminal-dots"><i></i><i></i><i></i></span>
+            <span class="terminal-title">TERMINAL OUTPUT VERIFIER</span>
+          </div>
+          <div class="terminal-body">
+            <pre class="terminal-code" id="terminal-code-display"></pre>
+            <div class="terminal-prompt-row">
+              <span class="terminal-prompt">$</span>
+              <input type="text" class="terminal-input" id="terminal-user-input" placeholder="Type predicted output..." autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        </div>
+        <p class="terminal-note">Type the exact output printed by this program. Whitespace around the answer is trimmed.</p>
+      </div>
+
       <div class="trial-actions">
         <button class="secondary" id="back" type="button">← Back</button>
         <span id="selection-status" aria-live="polite">Select an answer</span>
@@ -262,6 +307,22 @@
       <div id="share-toast" class="share-toast" role="status" aria-live="polite" hidden>Fate sealed to clipboard!</div>
     </section>
   </main>
+
+  <!-- ============ BLOODY HORROR JUMPSCARE OVERLAY ============ -->
+  <div class="scare-stage" id="scare-stage" aria-hidden="true">
+    <div class="scare-blood-splatter"></div>
+    <div class="scare-blood-curtain"></div>
+    <div class="scare-light"></div>
+    <div class="scare-grain"></div>
+    <div class="scare-creature-wrap">
+      <img class="scare-creature" id="scare-creature-img" src="assets/crawler.png" alt="">
+    </div>
+    <div class="scare-bloody-screamer" id="scare-bloody-screamer">
+      <p class="scare-alert-badge">BREACH CORRUPTION CRITICAL</p>
+      <h2 class="scare-screamer-text" id="scare-screamer-text">DO NOT LOOK BACK</h2>
+      <p class="scare-sub-warning" id="scare-sub-warning">SEAL CORRUPTED</p>
+    </div>
+  </div>
 
   <!-- ============ WATCHERS & FOOTER ============ -->
   <img class="watcher watcher-left" src="assets/reaper.svg" alt="" aria-hidden="true">

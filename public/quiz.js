@@ -153,6 +153,68 @@ function beginOpening() {
   advance();
 }
 
+const SCARE_CONFIGS = [
+  {
+    image: 'assets/crawler.png',
+    screamer: 'FIREWALL BREACHED',
+    warning: 'THE PHANTOM DETECTED YOUR PRESENCE',
+    badge: 'SECURITY SEAL 01 · SYSTEM CRITICAL'
+  },
+  {
+    image: 'assets/contorted.png',
+    screamer: 'CORRUPTED MEMORY',
+    warning: 'THE DEAD CODE IS INFECTING YOUR SYSTEM',
+    badge: 'SECURITY SEAL 02 · DEAD LOGIC AWAKENS'
+  },
+  {
+    image: 'assets/nosferatu-reach.svg',
+    screamer: 'TRAPPED IN THE MAZE',
+    warning: 'THERE IS NO BASE CASE FOR YOUR ESCAPE',
+    badge: 'SECURITY SEAL 03 · ENDLESS RECURSION'
+  },
+  {
+    image: 'assets/reaper.svg',
+    screamer: 'FINAL JUDGMENT',
+    warning: 'OUTPUT CANNOT BE UNDONE · PORTAL OPENING',
+    badge: 'SECURITY SEAL 04 · MAXIMUM ENTROPY'
+  }
+];
+
+function triggerJumpscareBriefing() {
+  const scareStage = $('scare-stage');
+  const scareImg = $('scare-creature-img');
+  const screamerText = $('scare-screamer-text');
+  const subWarning = $('scare-sub-warning');
+  const alertBadge = document.querySelector ? document.querySelector('.scare-alert-badge') : null;
+  const config = SCARE_CONFIGS[currentLevel] || SCARE_CONFIGS[0];
+
+  if (scareImg) scareImg.src = config.image;
+  if (screamerText) screamerText.textContent = config.screamer;
+  if (subWarning) subWarning.textContent = config.warning;
+  if (alertBadge) alertBadge.textContent = config.badge;
+
+  if (isBrowser && window.AudioEngine && typeof window.AudioEngine.playJumpscare === 'function') {
+    window.AudioEngine.playJumpscare();
+  }
+
+  if (document.body) {
+    document.body.classList.add('scare-shaking');
+  }
+  if (scareStage) {
+    scareStage.classList.add('is-active');
+  }
+
+  setTimeout(() => {
+    if (scareStage) {
+      scareStage.classList.remove('is-active');
+    }
+    if (document.body) {
+      document.body.classList.remove('scare-shaking');
+    }
+    showBriefing();
+  }, 850);
+}
+
 function showBriefing() {
   const level = levels[currentLevel];
   if (!level) {
@@ -164,6 +226,15 @@ function showBriefing() {
   $('briefing-topics').textContent = level.topics;
   $('briefing-copy').textContent = level.briefing;
   $('mission-whisper').textContent = level.whisper;
+
+  const briefingSection = $('briefing');
+  if (briefingSection) {
+    briefingSection.setAttribute('data-seal', String(currentLevel));
+    briefingSection.classList.remove('just-scared');
+    void briefingSection.offsetWidth;
+    briefingSection.classList.add('just-scared');
+  }
+
   show('briefing');
   const title = $('briefing-title');
   if (title && typeof title.focus === 'function') title.focus();
@@ -197,53 +268,128 @@ function render() {
   }
 
   const hintEl = $('trial-hint');
-  if (hintEl) hintEl.textContent = level.topics;
+  const isCode = level.type === 'code_editor';
+  const isPredict = level.type === 'predict_output';
+
+  if (hintEl) {
+    hintEl.textContent = isCode
+      ? (q.hint || 'Examine and repair the broken syntax/logic directly in the code editor.')
+      : isPredict
+      ? (q.hint || 'Type the exact console output produced when this code executes.')
+      : (level.topics || 'Choose one answer to break the seal.');
+  }
+
+  const kickerEl = $('question-kicker');
+  if (kickerEl) {
+    kickerEl.textContent = isCode
+      ? 'DEAD CODE DIAGNOSTIC'
+      : isPredict
+      ? 'TERMINAL EXECUTION TRACE'
+      : 'A WHISPER FROM THE DARK';
+  }
 
   const optionsContainer = $('options');
-  if (optionsContainer) {
-    optionsContainer.replaceChildren();
+  const codeEditorWrap = $('code-editor-wrap');
+  const outputInputWrap = $('output-input-wrap');
 
-    q.options.forEach((option, index) => {
-      const label = document.createElement('label');
-      label.className = 'answer';
+  if (isCode) {
+    // Mode: Code Editor (Seal 2: Debug the Dead)
+    if (optionsContainer) {
+      optionsContainer.hidden = true;
+      optionsContainer.replaceChildren();
+    }
+    if (outputInputWrap) outputInputWrap.hidden = true;
+    if (codeEditorWrap) codeEditorWrap.hidden = false;
 
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.name = 'answer';
-      input.value = index;
-      input.checked = answers[current] === index;
+    const langNameEl = $('editor-lang-name');
+    if (langNameEl) langNameEl.textContent = q.filename || 'code.py';
 
-      const letter = document.createElement('span');
-      letter.className = 'letter';
-      letter.textContent = String.fromCharCode(65 + index);
+    const editorInput = $('code-editor-input');
+    if (editorInput) {
+      const existingVal = answers[current];
+      editorInput.value = existingVal !== undefined ? existingVal : (q.starterCode || '');
+      updateEditorLineNumbers();
+    }
 
-      const text = document.createElement('span');
-      text.className = 'answer-text';
-      text.textContent = option;
-
-      // Note: check.cjs expects elements.options.children[index].children[0] to be the input!
-      label.append(input, letter, text);
-
-      if (isBrowser) {
-        const kbd = document.createElement('kbd');
-        kbd.className = 'key-hint';
-        kbd.textContent = String.fromCharCode(65 + index);
-        kbd.setAttribute('aria-hidden', 'true');
-        label.append(kbd);
-      }
-
-      input.addEventListener('change', () => {
-        answers[current] = index;
-        const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
-        allAnswers[allIndex] = index;
-        update();
-        if (isBrowser && window.AudioEngine) {
-          window.AudioEngine.playSelect();
+    const resetBtn = $('editor-reset');
+    if (resetBtn) {
+      resetBtn.onclick = () => {
+        if (editorInput) {
+          editorInput.value = q.starterCode || '';
+          answers[current] = editorInput.value;
+          const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+          allAnswers[allIndex] = editorInput.value;
+          updateEditorLineNumbers();
+          update();
         }
-      });
+      };
+    }
+  } else if (isPredict) {
+    // Mode: Text Input (Seal 4: Predict the Output)
+    if (optionsContainer) {
+      optionsContainer.hidden = true;
+      optionsContainer.replaceChildren();
+    }
+    if (codeEditorWrap) codeEditorWrap.hidden = true;
+    if (outputInputWrap) outputInputWrap.hidden = false;
 
-      optionsContainer.append(label);
-    });
+    const codeDisplay = $('terminal-code-display');
+    if (codeDisplay) codeDisplay.textContent = q.codeSnippet || '';
+
+    const terminalInput = $('terminal-user-input');
+    if (terminalInput) {
+      const existingVal = answers[current];
+      terminalInput.value = existingVal !== undefined ? existingVal : '';
+    }
+  } else {
+    // Mode: MCQ (Seals 1 & 3)
+    if (codeEditorWrap) codeEditorWrap.hidden = true;
+    if (outputInputWrap) outputInputWrap.hidden = true;
+    if (optionsContainer) {
+      optionsContainer.hidden = false;
+      optionsContainer.replaceChildren();
+
+      (q.options || []).forEach((option, index) => {
+        const label = document.createElement('label');
+        label.className = 'answer';
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'answer';
+        input.value = index;
+        input.checked = answers[current] === index;
+
+        const letter = document.createElement('span');
+        letter.className = 'letter';
+        letter.textContent = String.fromCharCode(65 + index);
+
+        const text = document.createElement('span');
+        text.className = 'answer-text';
+        text.textContent = option;
+
+        label.append(input, letter, text);
+
+        if (isBrowser) {
+          const kbd = document.createElement('kbd');
+          kbd.className = 'key-hint';
+          kbd.textContent = String.fromCharCode(65 + index);
+          kbd.setAttribute('aria-hidden', 'true');
+          label.append(kbd);
+        }
+
+        input.addEventListener('change', () => {
+          answers[current] = index;
+          const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+          allAnswers[allIndex] = index;
+          update();
+          if (isBrowser && window.AudioEngine) {
+            window.AudioEngine.playSelect();
+          }
+        });
+
+        optionsContainer.append(label);
+      });
+    }
   }
 
   const backBtn = $('back');
@@ -259,20 +405,88 @@ function render() {
   update();
 }
 
+function updateEditorLineNumbers() {
+  const editorInput = $('code-editor-input');
+  const lineNumbersEl = $('editor-line-numbers');
+  const charCountEl = $('editor-char-count');
+  if (!editorInput || !lineNumbersEl) return;
+
+  const lines = editorInput.value.split('\n');
+  const count = lines.length;
+  let numbers = '';
+  for (let i = 1; i <= count; i++) {
+    numbers += i + '\n';
+  }
+  lineNumbersEl.textContent = numbers;
+  if (charCountEl) {
+    charCountEl.textContent = `${count} ${count === 1 ? 'line' : 'lines'}`;
+  }
+}
+
 function update() {
-  const isAnswered = answers[current] !== undefined;
+  const level = levels[currentLevel];
+  const q = level ? level.questions[current] : null;
+  const ans = answers[current];
+  let isAnswered = false;
+
+  if (level && level.type === 'code_editor') {
+    isAnswered = typeof ans === 'string' && ans.trim().length > 0;
+  } else if (level && level.type === 'predict_output') {
+    isAnswered = typeof ans === 'string' && ans.trim().length > 0;
+  } else {
+    isAnswered = ans !== undefined;
+  }
+
   const nextBtn = $('next');
   if (nextBtn) nextBtn.disabled = !isAnswered;
 
   const statusEl = $('selection-status');
   if (statusEl) {
-    statusEl.textContent = !isAnswered ? 'Select an answer' : 'Answer sealed';
+    if (!isAnswered) {
+      statusEl.textContent = level && level.type === 'code_editor'
+        ? 'Code required'
+        : level && level.type === 'predict_output'
+        ? 'Type output above'
+        : 'Select an answer';
+    } else {
+      statusEl.textContent = level && level.type === 'code_editor'
+        ? 'Code ready to submit'
+        : level && level.type === 'predict_output'
+        ? 'Prediction entered'
+        : 'Answer sealed';
+    }
   }
+}
+
+function normalizeCode(code) {
+  if (typeof code !== 'string') return '';
+  return code
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map(line => line.trimEnd())
+    .join('\n')
+    .trim();
+}
+
+function normalizeOutput(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).trim();
+}
+
+function evaluateQuestion(question, userAnswer) {
+  if (question.expectedCode !== undefined) {
+    if (typeof userAnswer !== 'string') return false;
+    return normalizeCode(userAnswer) === normalizeCode(question.expectedCode);
+  }
+  if (question.expectedOutput !== undefined) {
+    return normalizeOutput(userAnswer).toLowerCase() === normalizeOutput(question.expectedOutput).toLowerCase();
+  }
+  return userAnswer === question.correctAnswer;
 }
 
 function finishLevel() {
   const level = levels[currentLevel];
-  const levelCorrect = level.questions.filter((question, index) => answers[index] === question.correctAnswer).length;
+  const levelCorrect = level.questions.filter((question, index) => evaluateQuestion(question, answers[index])).length;
   totalCorrect += levelCorrect;
   currentLevel++;
   setCorruption([8, 31, 54, 77, 100][currentLevel] || 100);
@@ -323,14 +537,29 @@ function finishResult() {
     levels.forEach(level => {
       level.questions.forEach(question => {
         const answer = allAnswers[questionIndex];
-        const isRight = answer === question.correctAnswer;
+        const isRight = evaluateQuestion(question, answer);
         const item = document.createElement('details');
         item.className = isRight ? 'review-card is-correct' : 'review-card is-wrong';
         const summary = document.createElement('summary');
         summary.textContent = `${isRight ? '✓' : '×'}  ${question.question}`;
         const explanation = document.createElement('p');
-        const answerText = answer === undefined ? 'No answer' : question.options[answer];
-        explanation.textContent = `Your answer: ${answerText}. Correct answer: ${question.options[question.correctAnswer]}. ${question.explanation || ''}`;
+
+        let answerText = '';
+        let correctText = '';
+
+        if (question.expectedCode !== undefined) {
+          answerText = answer ? '\n' + answer : 'No code entered';
+          correctText = '\n' + question.expectedCode;
+        } else if (question.expectedOutput !== undefined) {
+          answerText = answer !== undefined && answer !== '' ? String(answer) : 'No output entered';
+          correctText = String(question.expectedOutput);
+        } else {
+          answerText = answer === undefined ? 'No answer' : question.options[answer];
+          correctText = question.options[question.correctAnswer];
+        }
+
+        explanation.textContent = `Your submission: ${answerText}\n\nExpected: ${correctText}\n\n${question.explanation || ''}`;
+        explanation.style.whiteSpace = 'pre-wrap';
         item.append(summary, explanation);
         reviewEl.append(item);
         questionIndex++;
@@ -447,7 +676,7 @@ if (document.querySelectorAll) {
   document.querySelectorAll('.seal-card').forEach(card => {
     card.addEventListener('click', () => {
       if (Number(card.dataset.level) !== currentLevel) return;
-      showBriefing();
+      triggerJumpscareBriefing();
     });
   });
 }
@@ -459,7 +688,7 @@ if (deployBtn) {
       finishResult();
       return;
     }
-    showBriefing();
+    triggerJumpscareBriefing();
   });
 }
 
@@ -544,6 +773,47 @@ if (restartBtn) {
       initialEntry.textContent = 'CONNECTION ESTABLISHED. Unknown presence detected on the network.';
       log.append(initialEntry);
     }
+  });
+}
+
+// Code Editor Input Listeners (Tab indentation, auto-line numbers, state sync)
+const codeEditorInput = $('code-editor-input');
+if (codeEditorInput) {
+  codeEditorInput.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = codeEditorInput.selectionStart;
+      const end = codeEditorInput.selectionEnd;
+      const val = codeEditorInput.value;
+      const spaces = '    '; // 4 spaces for proper code editor indentation
+      codeEditorInput.value = val.substring(0, start) + spaces + val.substring(end);
+      codeEditorInput.selectionStart = codeEditorInput.selectionEnd = start + spaces.length;
+
+      answers[current] = codeEditorInput.value;
+      const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+      allAnswers[allIndex] = codeEditorInput.value;
+      updateEditorLineNumbers();
+      update();
+    }
+  });
+
+  codeEditorInput.addEventListener('input', () => {
+    answers[current] = codeEditorInput.value;
+    const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+    allAnswers[allIndex] = codeEditorInput.value;
+    updateEditorLineNumbers();
+    update();
+  });
+}
+
+// Terminal Output Predictor Input Listener
+const terminalUserInput = $('terminal-user-input');
+if (terminalUserInput) {
+  terminalUserInput.addEventListener('input', () => {
+    answers[current] = terminalUserInput.value;
+    const allIndex = levels.slice(0, currentLevel).reduce((sum, item) => sum + item.questions.length, current);
+    allAnswers[allIndex] = terminalUserInput.value;
+    update();
   });
 }
 
@@ -701,6 +971,48 @@ if (isBrowser) {
       oscillator.stop(audioCtx.currentTime + 0.42);
       subOscillator.stop(audioCtx.currentTime + 0.42);
     },
+    playJumpscare() {
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+        const screech = audioCtx.createOscillator();
+        const screechGain = audioCtx.createGain();
+        screech.type = 'sawtooth';
+        screech.frequency.setValueAtTime(880, now);
+        screech.frequency.exponentialRampToValueAtTime(140, now + 0.7);
+        screechGain.gain.setValueAtTime(0.28, now);
+        screechGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+        screech.connect(screechGain);
+        screechGain.connect(audioCtx.destination);
+        screech.start(now);
+        screech.stop(now + 0.75);
+
+        const boom = audioCtx.createOscillator();
+        const boomGain = audioCtx.createGain();
+        boom.type = 'triangle';
+        boom.frequency.setValueAtTime(160, now);
+        boom.frequency.exponentialRampToValueAtTime(32, now + 0.85);
+        boomGain.gain.setValueAtTime(0.4, now);
+        boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        boom.connect(boomGain);
+        boomGain.connect(audioCtx.destination);
+        boom.start(now);
+        boom.stop(now + 0.9);
+
+        const dso = audioCtx.createOscillator();
+        const dsoGain = audioCtx.createGain();
+        dso.type = 'square';
+        dso.frequency.setValueAtTime(666, now);
+        dso.frequency.exponentialRampToValueAtTime(55, now + 0.6);
+        dsoGain.gain.setValueAtTime(0.18, now);
+        dsoGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        dso.connect(dsoGain);
+        dsoGain.connect(audioCtx.destination);
+        dso.start(now);
+        dso.stop(now + 0.65);
+      } catch (e) {}
+    },
     speakLine(text) {
       if (!audioEnabled || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
       this.stopVoiceover();
@@ -717,7 +1029,11 @@ if (isBrowser) {
 
   // 2. Keyboard Navigation
   document.addEventListener('keydown', e => {
-    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+    if (e.target && e.target.tagName === 'TEXTAREA') {
+      // In code editor, Enter creates a new line without auto-advancing
+      return;
+    }
+    if (e.target && e.target.tagName === 'INPUT') {
       if (e.key === 'Enter') {
         const nextEl = $('next');
         if (nextEl && !nextEl.disabled) nextEl.click();
