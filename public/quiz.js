@@ -153,6 +153,70 @@ function beginOpening() {
   advance();
 }
 
+const SCARE_CONFIGS = [
+  {
+    image: 'assets/crawler.png',
+    screamer: 'FIREWALL BREACHED',
+    warning: 'THE PHANTOM DETECTED YOUR PRESENCE',
+    badge: 'SECURITY SEAL 01 · SYSTEM CRITICAL'
+  },
+  {
+    image: 'assets/contorted.png',
+    screamer: 'CORRUPTED MEMORY',
+    warning: 'THE DEAD CODE IS INFECTING YOUR SYSTEM',
+    badge: 'SECURITY SEAL 02 · DEAD LOGIC AWAKENS'
+  },
+  {
+    image: 'assets/nosferatu-reach.svg',
+    screamer: 'TRAPPED IN THE MAZE',
+    warning: 'THERE IS NO BASE CASE FOR YOUR ESCAPE',
+    badge: 'SECURITY SEAL 03 · ENDLESS RECURSION'
+  },
+  {
+    image: 'assets/reaper.svg',
+    screamer: 'FINAL JUDGMENT',
+    warning: 'OUTPUT CANNOT BE UNDONE · PORTAL OPENING',
+    badge: 'SECURITY SEAL 04 · MAXIMUM ENTROPY'
+  }
+];
+
+function triggerJumpscareBriefing() {
+  const scareStage = $('scare-stage');
+  const scareImg = $('scare-creature-img');
+  const screamerText = $('scare-screamer-text');
+  const subWarning = $('scare-sub-warning');
+  const alertBadge = document.querySelector ? document.querySelector('.scare-alert-badge') : null;
+  const config = SCARE_CONFIGS[currentLevel] || SCARE_CONFIGS[0];
+
+  if (scareImg) scareImg.src = config.image;
+  if (screamerText) screamerText.textContent = config.screamer;
+  if (subWarning) subWarning.textContent = config.warning;
+  if (alertBadge) alertBadge.textContent = config.badge;
+
+  // Sound effects: synthesize harsh demonic jumpscare + scream
+  if (isBrowser && window.AudioEngine) {
+    window.AudioEngine.playJumpscare();
+  }
+
+  // Visual effects: violent screen shake & bloody flash overlay
+  if (document.body) {
+    document.body.classList.add('scare-shaking');
+  }
+  if (scareStage) {
+    scareStage.classList.add('is-active');
+  }
+
+  setTimeout(() => {
+    if (scareStage) {
+      scareStage.classList.remove('is-active');
+    }
+    if (document.body) {
+      document.body.classList.remove('scare-shaking');
+    }
+    showBriefing();
+  }, 850);
+}
+
 function showBriefing() {
   const level = levels[currentLevel];
   if (!level) {
@@ -164,6 +228,15 @@ function showBriefing() {
   $('briefing-topics').textContent = level.topics;
   $('briefing-copy').textContent = level.briefing;
   $('mission-whisper').textContent = level.whisper;
+
+  const briefingSection = $('briefing');
+  if (briefingSection) {
+    briefingSection.setAttribute('data-seal', String(currentLevel));
+    briefingSection.classList.remove('just-scared');
+    void briefingSection.offsetWidth; // Trigger reflow for animation restart
+    briefingSection.classList.add('just-scared');
+  }
+
   show('briefing');
   const title = $('briefing-title');
   if (title && typeof title.focus === 'function') title.focus();
@@ -447,7 +520,7 @@ if (document.querySelectorAll) {
   document.querySelectorAll('.seal-card').forEach(card => {
     card.addEventListener('click', () => {
       if (Number(card.dataset.level) !== currentLevel) return;
-      showBriefing();
+      triggerJumpscareBriefing();
     });
   });
 }
@@ -459,7 +532,7 @@ if (deployBtn) {
       finishResult();
       return;
     }
-    showBriefing();
+    triggerJumpscareBriefing();
   });
 }
 
@@ -700,6 +773,52 @@ if (isBrowser) {
       subOscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.42);
       subOscillator.stop(audioCtx.currentTime + 0.42);
+    },
+    playJumpscare() {
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+
+        // 1. Harsh screech oscillator (frequency drops from piercing high to raw static)
+        const screech = audioCtx.createOscillator();
+        const screechGain = audioCtx.createGain();
+        screech.type = 'sawtooth';
+        screech.frequency.setValueAtTime(880, now);
+        screech.frequency.exponentialRampToValueAtTime(140, now + 0.7);
+        screechGain.gain.setValueAtTime(0.28, now);
+        screechGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+        screech.connect(screechGain);
+        screechGain.connect(audioCtx.destination);
+        screech.start(now);
+        screech.stop(now + 0.75);
+
+        // 2. Heavy sub-bass earthquake thud
+        const boom = audioCtx.createOscillator();
+        const boomGain = audioCtx.createGain();
+        boom.type = 'triangle';
+        boom.frequency.setValueAtTime(160, now);
+        boom.frequency.exponentialRampToValueAtTime(32, now + 0.85);
+        boomGain.gain.setValueAtTime(0.4, now);
+        boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        boom.connect(boomGain);
+        boomGain.connect(audioCtx.destination);
+        boom.start(now);
+        boom.stop(now + 0.9);
+
+        // 3. Demonic dissonant noise undertone
+        const dso = audioCtx.createOscillator();
+        const dsoGain = audioCtx.createGain();
+        dso.type = 'square';
+        dso.frequency.setValueAtTime(666, now);
+        dso.frequency.exponentialRampToValueAtTime(55, now + 0.6);
+        dsoGain.gain.setValueAtTime(0.18, now);
+        dsoGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        dso.connect(dsoGain);
+        dsoGain.connect(audioCtx.destination);
+        dso.start(now);
+        dso.stop(now + 0.65);
+      } catch (e) {}
     },
     speakLine(text) {
       if (!audioEnabled || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
