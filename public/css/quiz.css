@@ -1584,3 +1584,592 @@ body.ending-active .quiz-main {
     font-size: 17px;
   }
 }
+
+/* =========================================================
+   CODE EDITOR STYLES (LeetCode / HackerRank style for Seal 2)
+   ========================================================= */
+.code-editor-wrap {
+  margin: 22px 0 20px;
+  background: #14161a;
+  border: 1px solid rgba(240, 115, 90, 0.35);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #0d0f12;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #1e2229;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  font-family: var(--f-pixel, "Pixelify Sans", monospace);
+  font-size: 12px;
+  color: #ffb199;
+  letter-spacing: 0.5px;
+}
+
+.tab-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-badge {
+  font-family: var(--f-type, "Oswald", sans-serif);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #ff4a38;
+  background: rgba(255, 50, 30, 0.12);
+  border: 1px solid rgba(255, 60, 40, 0.4);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.editor-reset-btn {
+  background: none;
+  border: 1px solid rgba(240, 115, 90, 0.3);
+  color: #c9b0a7;
+  font-family: var(--f-type, "Oswald", sans-serif);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: #ff5533;
+}
+
+.editor-body {
+  position: relative;
+  display: flex;
+  min-height: 190px;
+  max-height: 380px;
+  background: #090a0d;
+}
+
+.editor-line-numbers {
+  width: 44px;
+  padding: 14px 8px 14px 0;
+  text-align: right;
+  font-family: "Consolas", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 20px;
+  color: #4a5263;
+  user-select: none;
+  background: #0d0f14;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: pre-line;
+}
+
+.editor-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e6edf3;
+  font-family: "Consolas", "Fira Code", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 14px;
+  resize: vertical;
+  min-height: 190px;
+  outline: none;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.editor-textarea:focus {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 14px;
+  background: #0c0e12;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--f-type, "Oswald", sans-serif);
+  font-size: 11px;
+  color: #8c7e79;
+  letter-spacing: 1px;
+}
+
+.editor-instructions {
+  color: #d18d7c;
+}
+
+.editor-char-count {
+  color: #6a7485;
+}
+
+/* =========================================================
+   TERMINAL OUTPUT PREDICTOR STYLES (Seal 4)
+   ========================================================= */
+.output-input-wrap {
+  margin: 22px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.terminal-card {
+  background: #07090c;
+  border: 1px solid rgba(0, 164, 239, 0.35);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 164, 239, 0.04);
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: #0e1218;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.terminal-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: block;
+}
+
+.terminal-dots i:nth-child(1) { background: #ff5f56; }
+.terminal-dots i:nth-child(2) { background: #ffbd2e; }
+.terminal-dots i:nth-child(3) { background: #27c93f; }
+
+.terminal-title {
+  font-family: var(--f-pixel, "Pixelify Sans", monospace);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #6ad0ff;
+}
+
+.terminal-body {
+  padding: 16px;
+}
+
+.terminal-code {
+  margin: 0 0 16px;
+  padding: 14px;
+  background: #020305;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: #d1e7ff;
+  font-family: "Consolas", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+.terminal-prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #040508;
+  border: 1px solid rgba(0, 164, 239, 0.45);
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 0 15px rgba(0, 164, 239, 0.15);
+}
+
+.terminal-prompt {
+  font-family: "Consolas", monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #00ff66;
+  user-select: none;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #00ff88;
+  font-family: "Consolas", "Fira Code", monospace;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  outline: none;
+}
+
+.terminal-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+  font-style: italic;
+  font-weight: normal;
+}
+
+.terminal-note {
+  font-family: var(--f-type, "Oswald", sans-serif);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #8faec2;
+  margin: 0;
+  text-align: center;
+}
+
+/* =========================================================
+   BLOODY HORROR JUMPSCARE & SEAL BRIEFING ATMOSPHERE
+   ========================================================= */
+body.scare-shaking {
+  animation: violentQuake 0.12s infinite;
+}
+
+@keyframes violentQuake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-14px, 8px) rotate(-1.5deg); }
+  40% { transform: translate(12px, -10px) rotate(1.2deg); }
+  60% { transform: translate(-10px, -6px) rotate(-0.8deg); }
+  80% { transform: translate(14px, 10px) rotate(1.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.scare-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transition: opacity 0.08s ease-out;
+}
+
+.scare-stage.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.scare-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 10, 10, 0.85) 0%, rgba(140, 0, 0, 0.95) 60%, #030001 100%);
+  animation: strobeStab 0.07s infinite alternate;
+  mix-blend-mode: hard-light;
+}
+
+@keyframes strobeStab {
+  0% { opacity: 0.95; filter: contrast(200%) brightness(1.5); }
+  50% { opacity: 0.25; filter: contrast(120%) brightness(0.6); }
+  100% { opacity: 1; filter: contrast(250%) brightness(1.8) invert(15%); }
+}
+
+.scare-grain {
+  position: absolute;
+  inset: -100%;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1 0 0 0 0.8 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: scareNoise 0.05s steps(2) infinite;
+}
+
+@keyframes scareNoise {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-8%, 5%); }
+  100% { transform: translate(6%, -7%); }
+}
+
+.scare-blood-curtain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 25px 90px at 12% 0%, #8b0000 85%, transparent 100%),
+    radial-gradient(ellipse 40px 140px at 28% 0%, #b30000 90%, transparent 100%),
+    radial-gradient(ellipse 20px 80px at 45% 0%, #660000 85%, transparent 100%),
+    radial-gradient(ellipse 50px 170px at 64% 0%, #a00000 90%, transparent 100%),
+    radial-gradient(ellipse 30px 110px at 82% 0%, #8b0000 85%, transparent 100%),
+    radial-gradient(ellipse 45px 150px at 94% 0%, #c80000 90%, transparent 100%),
+    linear-gradient(180deg, rgba(160, 0, 0, 0.9) 0%, rgba(100, 0, 0, 0.6) 20%, transparent 55%);
+  animation: bloodDripFall 0.8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.9));
+}
+
+@keyframes bloodDripFall {
+  0% { transform: scaleY(0.1); opacity: 0; }
+  30% { transform: scaleY(0.7); opacity: 1; }
+  100% { transform: scaleY(1.15) translateY(2%); opacity: 0.95; }
+}
+
+.scare-blood-splatter {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 90px at 20% 75%, rgba(139, 0, 0, 0.88), transparent 70%),
+    radial-gradient(circle 120px at 80% 30%, rgba(179, 0, 0, 0.8), transparent 75%),
+    radial-gradient(circle 140px at 50% 50%, rgba(120, 0, 0, 0.5), transparent 80%),
+    radial-gradient(circle 60px at 35% 20%, rgba(200, 0, 0, 0.7), transparent 70%);
+  mix-blend-mode: multiply;
+  animation: splatterPulse 0.15s infinite alternate;
+}
+
+@keyframes splatterPulse {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  100% { transform: scale(1.04) rotate(1deg); opacity: 1; }
+}
+
+.scare-creature-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.scare-creature {
+  max-width: 90vmin;
+  max-height: 85vh;
+  object-fit: contain;
+  filter: contrast(180%) brightness(0.9) drop-shadow(0 0 40px #ff0000) drop-shadow(0 0 100px rgba(180, 0, 0, 0.9));
+  animation: monsterLunge 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+  transform-origin: center center;
+}
+
+@keyframes monsterLunge {
+  0% {
+    transform: scale(0.2) translateY(50px) rotate(-6deg);
+    opacity: 0;
+    filter: brightness(0.2) blur(10px);
+  }
+  20% {
+    transform: scale(0.85) translateY(0) rotate(4deg);
+    opacity: 1;
+    filter: brightness(1.8) drop-shadow(0 0 50px #ff1a1a);
+  }
+  45% {
+    transform: scale(1.35) translateY(-20px) rotate(-3deg);
+    opacity: 1;
+    filter: brightness(1.2) contrast(220%) drop-shadow(0 0 80px #b30000);
+  }
+  75% {
+    transform: scale(1.8) translateY(-10px) rotate(2deg);
+    opacity: 1;
+    filter: brightness(2) contrast(280%) drop-shadow(0 0 120px #ff0000);
+  }
+  100% {
+    transform: scale(2.2) translateY(-15px) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1.4) contrast(300%) drop-shadow(0 0 150px #ff0000);
+  }
+}
+
+.scare-bloody-screamer {
+  position: absolute;
+  inset: auto 0 8% 0;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.scare-alert-badge {
+  font-family: var(--f-pixel, "Pixelify Sans", monospace);
+  font-size: clamp(14px, 2.5vw, 22px);
+  color: #ff3326;
+  letter-spacing: 4px;
+  margin: 0 0 8px;
+  text-shadow: 0 0 15px #ff0000;
+  animation: badgeFlicker 0.1s steps(2) infinite;
+}
+
+@keyframes badgeFlicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.scare-screamer-text {
+  font-family: var(--f-title, "Rye", Georgia, serif);
+  font-size: clamp(38px, 9vw, 92px);
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 3px;
+  line-height: 1;
+  text-shadow:
+    0 0 20px #ff0000,
+    0 0 50px #ff0000,
+    0 0 90px #800000,
+    3px 3px 0 #3a0000,
+    -3px -3px 0 #000;
+  animation: screamerShake 0.08s infinite alternate;
+}
+
+@keyframes screamerShake {
+  0% { transform: scale(1) translate(-3px, 2px); }
+  50% { transform: scale(1.08) translate(3px, -2px); }
+  100% { transform: scale(1.04) translate(-2px, -3px); }
+}
+
+.scare-sub-warning {
+  font-family: var(--f-type, "Oswald", sans-serif);
+  font-size: clamp(14px, 2vw, 20px);
+  color: #ffb8a8;
+  letter-spacing: 5px;
+  margin: 8px 0 0;
+  text-shadow: 0 0 10px #ff0000;
+}
+
+/* =========================================================
+   BLOODY BRIEFING PAGE ENHANCEMENTS (All 4 Seals)
+   ========================================================= */
+.briefing {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+.briefing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, #500 0%, #b00d27 25%, #ff2a2a 50%, #b00d27 75%, #500 100%);
+  box-shadow: 0 0 20px #ff1a1a, 0 4px 15px rgba(200, 0, 0, 0.7);
+  z-index: 2;
+}
+
+.briefing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(200, 10, 10, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.briefing[data-seal="0"] {
+  border-color: rgba(220, 38, 38, 0.65);
+  box-shadow: 0 0 45px rgba(200, 20, 20, 0.35), inset 0 0 50px rgba(180, 15, 15, 0.15);
+}
+.briefing[data-seal="0"] h2 {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 60, 60, 0.8), 0 3px 0 #4a0505;
+}
+
+.briefing[data-seal="1"] {
+  border-color: rgba(185, 28, 28, 0.8);
+  box-shadow: 0 0 55px rgba(185, 28, 28, 0.45), inset 0 0 60px rgba(140, 10, 10, 0.25);
+}
+.briefing[data-seal="1"] h2 {
+  color: #ffcccc;
+  text-shadow: 0 0 25px rgba(255, 30, 30, 0.9), 0 3px 0 #5a0000;
+}
+
+.briefing[data-seal="2"] {
+  border-color: rgba(153, 27, 27, 0.85);
+  box-shadow: 0 0 65px rgba(160, 10, 30, 0.55), inset 0 0 70px rgba(120, 0, 20, 0.3);
+}
+.briefing[data-seal="2"] h2 {
+  color: #ffe0db;
+  text-shadow: 0 0 30px rgba(220, 20, 40, 1), 0 3px 0 #60000e;
+}
+
+.briefing[data-seal="3"] {
+  border-color: rgba(239, 68, 68, 0.9);
+  box-shadow: 0 0 80px rgba(255, 0, 0, 0.65), inset 0 0 90px rgba(180, 0, 0, 0.35);
+  animation: criticalPulse 1.8s ease-in-out infinite alternate;
+}
+.briefing[data-seal="3"] h2 {
+  color: #fff;
+  text-shadow: 0 0 35px #ff1a1a, 0 0 70px #b30000, 0 3px 0 #400000;
+}
+
+@keyframes criticalPulse {
+  0% { box-shadow: 0 0 50px rgba(200, 0, 0, 0.4), inset 0 0 60px rgba(160, 0, 0, 0.2); }
+  100% { box-shadow: 0 0 90px rgba(255, 20, 20, 0.75), inset 0 0 100px rgba(220, 10, 10, 0.4); }
+}
+
+.briefing.just-scared {
+  animation: briefingGlitchEntry 0.6s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes briefingGlitchEntry {
+  0% {
+    opacity: 0.1;
+    transform: scale(0.96) translateY(12px);
+    filter: brightness(2.5) contrast(180%) hue-rotate(-20deg);
+  }
+  20% {
+    opacity: 0.9;
+    transform: scale(1.02) translateY(-4px);
+    filter: brightness(1.5) contrast(150%);
+  }
+  40% {
+    transform: scale(0.99) translateY(2px);
+    filter: brightness(0.8);
+  }
+  60% {
+    transform: scale(1.01) translateY(-1px);
+    filter: brightness(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: none;
+  }
+}
+
+.mission-whisper {
+  background: rgba(30, 4, 6, 0.7);
+  padding: 10px 16px;
+  border-left: 3px solid #ff3326;
+  border-radius: 2px;
+  display: inline-block;
+  box-shadow: inset 0 0 15px rgba(255, 20, 20, 0.1);
+}
+
