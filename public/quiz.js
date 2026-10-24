@@ -1,98 +1,26 @@
 // The Crypt Trials - Logic & Atmospheric Engine
 
 const $ = id => (typeof document !== 'undefined' && document.getElementById ? document.getElementById(id) : null);
-let levels = (typeof window !== 'undefined' && window.QUIZ_LEVELS) || [];
-let questions = levels.flatMap(level => level.questions);
+const levels = (typeof window !== 'undefined' && window.QUIZ_LEVELS) || [];
+const questions = levels.flatMap(level => level.questions);
 let current = 0;
 let currentLevel = 0;
 let answers = [];
 let allAnswers = [];
 let totalCorrect = 0;
 let sequenceTimer = null;
-let currentTeam = null; // { teamName, leaderName, isSubmitted }
-let serverScore = null;
 
 // Determine if running in a real browser (check.cjs mock does not have document.addEventListener)
 const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof document.addEventListener === 'function';
 
-async function checkSession() {
-  try {
-    const res = await fetch('/api/auth/session');
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.authenticated) {
-      currentTeam = data;
-      return data;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-async function loadDynamicQuestions() {
-  try {
-    const res = await fetch('/api/quiz/questions');
-    if (!res.ok) return false;
-    const data = await res.json();
-    if (data.seals && data.seals.length === 4) {
-      levels = data.seals;
-      questions = levels.flatMap(level => level.questions);
-      if (typeof window !== 'undefined') {
-        window.QUIZ_LEVELS = levels;
-      }
-      return true;
-    }
-  } catch (e) {
-    console.warn('Using local question definitions fallback:', e.message);
-  }
-  return false;
-}
-
-async function saveSealDraft(sealNumber, answersMap) {
-  try {
-    await fetch('/api/quiz/save-draft', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sealNumber,
-        answers: answersMap
-      })
-    });
-  } catch (err) {
-    console.warn('Draft save notice:', err.message);
-  }
-}
-
-async function submitFinalQuiz(allAnswersBySeal) {
-  try {
-    const res = await fetch('/api/quiz/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        answers: allAnswersBySeal
-      })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      serverScore = data.score;
-      return data;
-    }
-  } catch (err) {
-    console.warn('Final submission notice:', err.message);
-  }
-  return null;
-}
-
-
 function show(id) {
-  const views = ['auth-gate', 'opening', 'intro', 'briefing', 'trial', 'seal-result', 'ending', 'result'];
+  const views = ['opening', 'intro', 'briefing', 'trial', 'seal-result', 'ending', 'result'];
   views.forEach(view => {
     const el = $(view);
     if (el) el.hidden = view !== id;
   });
   if (document.body) {
-    document.body.classList.toggle('opening-active', id === 'opening' || id === 'auth-gate');
+    document.body.classList.toggle('opening-active', id === 'opening');
     document.body.classList.toggle('ending-active', id === 'ending');
   }
 }
@@ -560,17 +488,6 @@ function finishLevel() {
   const level = levels[currentLevel];
   const levelCorrect = level.questions.filter((question, index) => evaluateQuestion(question, answers[index])).length;
   totalCorrect += levelCorrect;
-  // Save draft for this seal to server
-  if (level) {
-    const sealNumber = currentLevel + 1;
-    const sealAnswerMap = {};
-    level.questions.forEach((q, idx) => {
-      const qKey = q.questionKey || `seal${sealNumber}_q${idx + 1}`;
-      sealAnswerMap[qKey] = answers[idx];
-    });
-    saveSealDraft(sealNumber, sealAnswerMap);
-  }
-
   currentLevel++;
   setCorruption([8, 31, 54, 77, 100][currentLevel] || 100);
   logMission(currentLevel === levels.length
@@ -610,28 +527,7 @@ function finishResult() {
   const resultCopyEl = $('result-copy');
   if (resultCopyEl) resultCopyEl.textContent = 'Four seals broken. Containment failed. You did not stop the Phantom. You let it out.';
   const scoreEl = $('score');
-
-  // Submit all 4 seals to server
-  const answersBySeal = {};
-  let qIdx = 0;
-  levels.forEach((lvl, sIdx) => {
-    const sealNum = sIdx + 1;
-    const sMap = {};
-    lvl.questions.forEach((q, qIndex) => {
-      const qKey = q.questionKey || `seal${sealNum}_q${qIndex + 1}`;
-      sMap[qKey] = allAnswers[qIdx];
-      qIdx++;
-    });
-    answersBySeal[`seal_${sealNum}`] = sMap;
-  });
-
-  submitFinalQuiz(answersBySeal).then(res => {
-    if (res && res.score !== undefined) {
-      if (scoreEl) scoreEl.textContent = `${res.score} / ${res.totalQuestions || questions.length}`;
-    }
-  });
-
-  if (scoreEl) scoreEl.textContent = `${serverScore !== null ? serverScore : totalCorrect} / ${questions.length}`;
+  if (scoreEl) scoreEl.textContent = `${totalCorrect} / ${questions.length}`;
   renderSealStatus('final-seals');
 
   const reviewEl = $('review');
@@ -641,26 +537,30 @@ function finishResult() {
     levels.forEach(level => {
       level.questions.forEach(question => {
         const answer = allAnswers[questionIndex];
+        const isRight = evaluateQuestion(question, answer);
         const item = document.createElement('details');
-        item.className = 'review-card is-sealed';
+        item.className = isRight ? 'review-card is-correct' : 'review-card is-wrong';
         const summary = document.createElement('summary');
-        summary.textContent = `✦  ${question.question}`;
-        const detailsBody = document.createElement('p');
+        summary.textContent = `${isRight ? '✓' : '×'}  ${question.question}`;
+        const explanation = document.createElement('p');
 
         let answerText = '';
-        if (level.type === 'code_editor') {
+        let correctText = '';
+
+        if (question.expectedCode !== undefined) {
           answerText = answer ? '\n' + answer : 'No code entered';
-        } else if (level.type === 'predict_output') {
+          correctText = '\n' + question.expectedCode;
+        } else if (question.expectedOutput !== undefined) {
           answerText = answer !== undefined && answer !== '' ? String(answer) : 'No output entered';
+          correctText = String(question.expectedOutput);
         } else {
-          answerText = (answer !== undefined && question.options && question.options[answer])
-            ? question.options[answer]
-            : (answer !== undefined ? `Option ${answer + 1}` : 'No answer selected');
+          answerText = answer === undefined ? 'No answer' : question.options[answer];
+          correctText = question.options[question.correctAnswer];
         }
 
-        detailsBody.textContent = `Your submitted answer: ${answerText}\n\n[Status: Sealed and recorded on server for official evaluation]`;
-        detailsBody.style.whiteSpace = 'pre-wrap';
-        item.append(summary, detailsBody);
+        explanation.textContent = `Your submission: ${answerText}\n\nExpected: ${correctText}\n\n${question.explanation || ''}`;
+        explanation.style.whiteSpace = 'pre-wrap';
+        item.append(summary, explanation);
         reviewEl.append(item);
         questionIndex++;
       });
@@ -1400,99 +1300,4 @@ if (isBrowser) {
       }
     });
   }
-
-  // 9. Team Authentication Form Handling
-  const authForm = $('auth-form');
-  const authStatus = $('auth-status');
-  const authEmail = $('auth-email');
-  const authPhone = $('auth-phone');
-  const authSubmitBtn = $('auth-submit-btn');
-
-  if (authForm) {
-    authForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!authEmail || !authPhone) return;
-
-      const email = authEmail.value.trim();
-      const phone = authPhone.value.trim();
-
-      if (!email || !phone) return;
-
-      if (authSubmitBtn) {
-        authSubmitBtn.disabled = true;
-        authSubmitBtn.innerHTML = 'Verifying...';
-      }
-      if (authStatus) {
-        authStatus.hidden = true;
-        authStatus.className = 'auth-status';
-      }
-
-      try {
-        const res = await fetch('/api/auth/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone })
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.authenticated) {
-          currentTeam = data;
-          if (authStatus) {
-            authStatus.hidden = false;
-            authStatus.classList.add('is-success');
-            authStatus.textContent = `Clearance granted. Welcome, Team ${data.teamName}!`;
-          }
-
-          // Fetch questions from backend
-          await loadDynamicQuestions();
-
-          // Proceed to opening cinematic after short clearance confirmation
-          setTimeout(() => {
-            show('opening');
-            const startBtn = $('start');
-            if (startBtn) startBtn.hidden = false;
-          }, 600);
-        } else {
-          if (authStatus) {
-            authStatus.hidden = false;
-            authStatus.classList.add('is-error');
-            authStatus.textContent = data.error || 'Verification failed. Credentials do not match.';
-          }
-        }
-      } catch (err) {
-        if (authStatus) {
-          authStatus.hidden = false;
-          authStatus.classList.add('is-error');
-          authStatus.textContent = 'Unable to connect to verification server. Please retry.';
-        }
-      } finally {
-        if (authSubmitBtn) {
-          authSubmitBtn.disabled = false;
-          authSubmitBtn.innerHTML = 'Verify clearance <span>→</span>';
-        }
-      }
-    });
-  }
-
-  // 10. Bootstrap Session Check on Load
-  checkSession().then(async session => {
-    if (session && session.authenticated) {
-      await loadDynamicQuestions();
-      // If team already finalized, show final status
-      if (session.isSubmitted) {
-        show('result');
-        const resultCopyEl = $('result-copy');
-        if (resultCopyEl) {
-          resultCopyEl.textContent = `Team ${session.teamName} has already sealed and submitted their final answers.`;
-        }
-      } else {
-        show('opening');
-      }
-    } else {
-      // Require verification gate
-      show('auth-gate');
-    }
-  });
 }
-
