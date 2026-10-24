@@ -1,8 +1,7 @@
-// Question bank for MTC Crypt Trials - Phantom Protocol
-// Seal 1: Tech Trivia (MCQ)
-// Seal 2: Debug the Dead (Code Editor with starterCode & fixed code verification)
-// Seal 3: DSA After Dark (MCQ)
-// Seal 4: Predict the Output (Terminal text input prediction)
+// Safe public question definitions for offline development & fallback.
+// NOTICE: Private answer keys, expected code, expected output, and explanations
+// have been removed to protect the integrity of the live quiz.
+// In production, questions are delivered dynamically via /api/quiz/questions.
 
 window.QUIZ_LEVELS = [
   {
@@ -13,28 +12,24 @@ window.QUIZ_LEVELS = [
     type: 'mcq',
     questions: [
       {
+        questionKey: 's1_q1_llm_training',
         question: 'Which technology is commonly used to train a large language model?',
-        options: ['Machine learning', 'Rasterization', 'Packet switching only', 'Disk defragmentation'],
-        correctAnswer: 0,
-        explanation: 'Large language models learn patterns from data using machine-learning techniques.'
+        options: ['Machine learning', 'Rasterization', 'Packet switching only', 'Disk defragmentation']
       },
       {
+        questionKey: 's1_q2_mfa_factor',
         question: 'What does multi-factor authentication add to a sign-in?',
-        options: ['A faster internet connection', 'A second verification factor', 'A public password', 'An extra browser tab'],
-        correctAnswer: 1,
-        explanation: 'MFA asks for an additional factor, such as an authenticator code or security key.'
+        options: ['A faster internet connection', 'A second verification factor', 'A public password', 'An extra browser tab']
       },
       {
+        questionKey: 's1_q3_html_structure',
         question: 'Which language provides the structure of a web page?',
-        options: ['CSS', 'HTML', 'SQL', 'Bash'],
-        correctAnswer: 1,
-        explanation: 'HTML defines the structure and content of a web page.'
+        options: ['CSS', 'HTML', 'SQL', 'Bash']
       },
       {
+        questionKey: 's1_q4_alu_operation',
         question: 'Which CPU component performs arithmetic and logical operations?',
-        options: ['RAM', 'Network interface', 'ALU', 'Power supply'],
-        correctAnswer: 2,
-        explanation: 'The arithmetic logic unit performs arithmetic calculations and logical operations.'
+        options: ['RAM', 'Network interface', 'ALU', 'Power supply']
       }
     ]
   },
@@ -46,40 +41,36 @@ window.QUIZ_LEVELS = [
     type: 'code_editor',
     questions: [
       {
+        questionKey: 's2_q1_py_scream',
         question: 'Fix the syntax error in this Python script so that it correctly prints "Boo" to stdout.',
         language: 'python',
         filename: 'spooky_print.py',
         hint: 'Check parentheses and string quoting around the print argument.',
-        starterCode: 'def scream():\n    print "Boo"\n\nscream()',
-        expectedCode: 'def scream():\n    print("Boo")\n\nscream()',
-        explanation: 'In Python 3, print is a function and requires parentheses around its arguments: print("Boo").'
+        starterCode: 'def scream():\n    print "Boo"\n\nscream()'
       },
       {
+        questionKey: 's2_q2_js_safe_add',
         question: 'Fix the JavaScript function bug so that it calculates the correct mathematical sum of a and b (numeric addition, not string concatenation).',
         language: 'javascript',
         filename: 'safe_add.js',
         hint: 'Use Number() or parseInt() to ensure numeric addition when b might be passed as a string.',
-        starterCode: 'function addValues(a, b) {\n    // Bug: concatenates string instead of adding numbers\n    return a + b;\n}',
-        expectedCode: 'function addValues(a, b) {\n    return Number(a) + Number(b);\n}',
-        explanation: 'Converting both operands to Number(a) + Number(b) or +a + +b ensures numeric addition instead of string concatenation.'
+        starterCode: 'function addValues(a, b) {\n    // Bug: concatenates string instead of adding numbers\n    return a + b;\n}'
       },
       {
+        questionKey: 's2_q3_py_containment',
         question: 'Fix the Python range and comparison bug in is_in_range so that it returns True only when x is between 1 and 10 inclusive.',
         language: 'python',
         filename: 'containment_bounds.py',
         hint: 'Use chained comparison (1 <= x <= 10) or (x >= 1 and x <= 10).',
-        starterCode: 'def is_in_range(x):\n    # Bug: incorrect operator logic\n    return 1 < x > 10',
-        expectedCode: 'def is_in_range(x):\n    return 1 <= x <= 10',
-        explanation: 'Inclusive range checking in Python is written as 1 <= x <= 10 or (x >= 1 and x <= 10).'
+        starterCode: 'def is_in_range(x):\n    # Bug: incorrect operator logic\n    return 1 < x > 10'
       },
       {
+        questionKey: 's2_q4_py_loop',
         question: 'Fix the broken Python loop so it iterates through every item in the items list and prints it.',
         language: 'python',
         filename: 'corrupted_loop.py',
         hint: 'Use a proper for ... in items: statement followed by an indented block.',
-        starterCode: 'def process_souls(items):\n    # Bug: invalid loop header\n    loop items:\n        print(item)',
-        expectedCode: 'def process_souls(items):\n    for item in items:\n        print(item)',
-        explanation: 'A standard iteration loop in Python uses `for item in items:`.'
+        starterCode: 'def process_souls(items):\n    # Bug: invalid loop header\n    loop items:\n        print(item)'
       }
     ]
   },
@@ -91,28 +82,24 @@ window.QUIZ_LEVELS = [
     type: 'mcq',
     questions: [
       {
+        questionKey: 's3_q1_zero_index',
         question: 'In a zero-indexed array of length n, what is the index of its final element?',
-        options: ['n', '1', 'n - 1', 'n + 1'],
-        correctAnswer: 2,
-        explanation: 'Zero-based indexing starts at 0, so the last valid position is n - 1.'
+        options: ['n', '1', 'n - 1', 'n + 1']
       },
       {
+        questionKey: 's3_q2_bubble_sort',
         question: 'Which sorting algorithm repeatedly compares and swaps adjacent out-of-order elements?',
-        options: ['Binary search', 'Depth-first search', 'Hashing', 'Bubble sort'],
-        correctAnswer: 3,
-        explanation: 'Bubble sort compares adjacent pairs and swaps them until the list is ordered.'
+        options: ['Binary search', 'Depth-first search', 'Hashing', 'Bubble sort']
       },
       {
+        questionKey: 's3_q3_binary_search_complexity',
         question: 'What is the time complexity of binary search on a sorted array?',
-        options: ['O(n²)', 'O(n)', 'O(log n)', 'O(1) in every case'],
-        correctAnswer: 2,
-        explanation: 'Binary search halves the remaining search interval on each step.'
+        options: ['O(n²)', 'O(n)', 'O(log n)', 'O(1) in every case']
       },
       {
+        questionKey: 's3_q4_py_slice_reverse',
         question: 'What does the Python string slice "crypt"[::-1] produce?',
-        options: ['crypt', 'tpyrc', 'rypc', 'A syntax error'],
-        correctAnswer: 1,
-        explanation: 'A slice step of -1 traverses the string from right to left.'
+        options: ['crypt', 'tpyrc', 'rypc', 'A syntax error']
       }
     ]
   },
@@ -124,36 +111,32 @@ window.QUIZ_LEVELS = [
     type: 'predict_output',
     questions: [
       {
+        questionKey: 's4_q1_c_output',
         question: 'Trace the C program execution and predict the exact printed output.',
         language: 'c',
         codeSnippet: '#include <stdio.h>\n\nint main() {\n    int x = 4;\n    printf("%d", x + 3);\n    return 0;\n}',
-        expectedOutput: '7',
-        hint: 'Evaluate 4 + 3 formatted as an integer %d.',
-        explanation: 'The expression 4 + 3 evaluates to 7, which printf("%d", ...) outputs without newline.'
+        hint: 'Evaluate 4 + 3 formatted as an integer %d.'
       },
       {
+        questionKey: 's4_q2_cpp_division',
         question: 'Trace the C++ integer division logic and predict the exact printed output.',
         language: 'cpp',
         codeSnippet: '#include <iostream>\nusing namespace std;\n\nint main() {\n    int n = 5;\n    cout << n / 2;\n    return 0;\n}',
-        expectedOutput: '2',
-        hint: 'Remember: integer divided by integer in C++ truncates the decimal part.',
-        explanation: 'In C++, 5 / 2 performs integer division, discarding the fractional part (.5) to output 2.'
+        hint: 'Remember: integer divided by integer in C++ truncates the decimal part.'
       },
       {
+        questionKey: 's4_q3_py_slice_crypt',
         question: 'Trace the Python string slicing and predict the exact printed output.',
         language: 'python',
         codeSnippet: 'word = "crypt"\nprint(word[1:4])',
-        expectedOutput: 'ryp',
-        hint: 'Python slices are [start:stop] where start is included (1) and stop is excluded (4).',
-        explanation: 'Indices 1, 2, 3 correspond to letters "r", "y", "p". The stop index 4 is excluded.'
+        hint: 'Python slices are [start:stop] where start is included (1) and stop is excluded (4).'
       },
       {
+        questionKey: 's4_q4_js_coercion',
         question: 'Trace the JavaScript type coercion expression and predict the exact printed output.',
         language: 'javascript',
         codeSnippet: 'const val = 3 + "2";\nconsole.log(val);',
-        expectedOutput: '32',
-        hint: 'When a number is added to a string with +, JavaScript converts the number to string and concatenates.',
-        explanation: 'Number 3 is coerced into "3", and concatenation with "2" results in "32".'
+        hint: 'When a number is added to a string with +, JavaScript converts the number to string and concatenates.'
       }
     ]
   }
