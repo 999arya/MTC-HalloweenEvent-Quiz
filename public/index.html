@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Rye&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Oswald:wght@400;500;600;700&family=Pixelify+Sans:wght@500;700&family=Special+Elite&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/original.css">
   <link rel="stylesheet" href="css/quiz.css">
+  <link rel="stylesheet" href="css/effects.css">
 </head>
 <body class="opening-active">
   <!-- ============ ATMOSPHERE ============ -->
@@ -142,19 +143,111 @@
 
   <!-- ============ HEADER ============ -->
   <header class="quiz-header">
-    <a class="brand" href="./" aria-label="Microsoft Tech Community home">
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <a class="brand" href="./" aria-label="MTC home">
+      <img class="brand-logo" src="assets/mtc-logo.png" alt="MTC">
       <span class="brand-text">Microsoft Tech Community<small>Amity Noida</small></span>
     </a>
     <div class="header-tools">
+      <div class="header-team-badge" id="header-team-badge" hidden aria-live="polite">
+        <span class="header-team-dot" id="header-sync-dot"></span>
+        <span class="header-team-label" id="header-team-label">TEAM</span>
+      </div>
       <span class="edition">HALLOWEEN EDITION / 2026</span>
-      <button id="sound" class="sound" aria-pressed="false" type="button">Sound off ♫</button>
+      <button id="sound" class="sound" aria-pressed="true" aria-label="Turn sound off" title="Sound starts on your first interaction" type="button">Sound on ♫</button>
     </div>
   </header>
 
   <!-- ============ MAIN CONTENT ============ -->
   <main class="quiz-main">
-    <section class="opening" id="opening" aria-labelledby="opening-title">
+    <section class="opening auth-gate" id="auth-gate" aria-labelledby="auth-title">
+      <p class="boot-label">IDENTITY VERIFICATION PROTOCOL <span>·</span> SECURITY CLEARANCE REQUIRED</p>
+      <h1 id="auth-title">TEAM <em>VERIFICATION</em></h1>
+      <p class="story-line" id="auth-message">Verify your registered credentials or enter your Team Name to resume where you left off.</p>
+
+      <div class="auth-mode-tabs" id="auth-mode-tabs" role="tablist" aria-label="Sign-in mode">
+        <button class="auth-mode-tab is-active" id="tab-verify-creds" type="button" role="tab" aria-selected="true">Verify Credentials</button>
+        <button class="auth-mode-tab" id="tab-resume-team" type="button" role="tab" aria-selected="false">Resume by Team Name</button>
+      </div>
+
+      <form class="auth-form" id="auth-form" autocomplete="on" novalidate>
+        <div class="auth-credentials-group" id="auth-credentials-group">
+          <div class="auth-field">
+            <label for="auth-email">REGISTERED EMAIL (LEADER OR MEMBER)</label>
+            <input type="text" inputmode="email" id="auth-email" placeholder="leader@domain.com" autocomplete="email">
+          </div>
+          <div class="auth-field">
+            <label for="auth-phone">REGISTERED PHONE NUMBER</label>
+            <input type="tel" id="auth-phone" placeholder="10-digit mobile number" autocomplete="tel">
+          </div>
+          <div class="auth-field">
+            <label for="auth-team-name">OFFICIAL TEAM NAME <span class="field-optional">(SET NOW OR NEXT STEP)</span></label>
+            <input type="text" id="auth-team-name" maxlength="48" placeholder="e.g. Hexblade Coven (2–48 chars)" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="auth-resume-group" id="auth-resume-group" hidden>
+          <div class="auth-field">
+            <label for="resume-team-input">ENTER YOUR REGISTERED TEAM NAME</label>
+            <input type="text" id="resume-team-input" maxlength="48" placeholder="Type your exact Team Name to resume..." autocomplete="off">
+            <small class="auth-field-hint">Disconnected or switched devices? Enter your Team Name to restore your exact seal &amp; question.</small>
+          </div>
+        </div>
+
+        <div class="auth-actions">
+          <button class="primary" id="auth-submit-btn" type="submit">Verify clearance <span>→</span></button>
+        </div>
+        <p class="auth-status" id="auth-status" role="alert" aria-live="assertive" hidden></p>
+      </form>
+
+      <!-- Verified Team Details Card (Revealed after successful credential check) -->
+      <div class="team-details-panel" id="team-details-panel" hidden aria-live="polite">
+        <div class="team-panel-header">
+          <div class="team-panel-badges">
+            <span class="team-panel-badge" id="team-clearance-badge">CLEARANCE VERIFIED</span>
+            <span class="team-panel-badge progress-badge" id="team-progress-badge" hidden>SEAL 01 READY</span>
+          </div>
+          <h2 class="team-panel-name" id="team-display-name">Team Name</h2>
+          <p class="team-panel-sub" id="team-display-sub">Roster verified in crypt registry</p>
+        </div>
+
+        <!-- Official Team Name Setup / Lock Box -->
+        <div class="team-name-setup-box" id="team-name-setup-box">
+          <label class="team-name-setup-label" for="team-custom-name-input" id="team-name-setup-label">
+            OFFICIAL TEAM NAME · REQUIRED FOR LEADERBOARD &amp; ROUND 2
+          </label>
+          <div class="team-name-setup-row">
+            <input type="text" id="team-custom-name-input" maxlength="48" placeholder="Enter your official Team Name (e.g. Phantom Core)..." autocomplete="off">
+            <button class="secondary team-name-save-btn" id="save-team-name-btn" type="button">Lock Team Name</button>
+          </div>
+          <p class="team-name-setup-note" id="team-name-setup-note">Your Team Name links your Round 1 marks with Round 2 (The Wheel of Curses) and allows instant resume if you disconnect.</p>
+        </div>
+
+        <div class="team-info-grid">
+          <div class="team-info-item">
+            <span class="team-info-label">TEAM LEADER</span>
+            <span class="team-info-value" id="team-display-leader">—</span>
+          </div>
+          <div class="team-info-item">
+            <span class="team-info-label">MEMBERS REGISTERED</span>
+            <span class="team-info-value" id="team-display-size">1</span>
+          </div>
+        </div>
+
+        <div class="team-roster">
+          <span class="team-roster-title">VERIFIED SQUAD ROSTER</span>
+          <ul class="team-members-list" id="team-members-list">
+            <!-- Dynamic member list items -->
+          </ul>
+        </div>
+
+        <div class="team-details-actions">
+          <button class="secondary" id="auth-switch-btn" type="button">Switch account ↺</button>
+          <button class="primary" id="proceed-quiz-btn" type="button">Enter Crypt Trials <span>→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="opening" id="opening" hidden aria-labelledby="opening-title">
       <p class="boot-label">SYSTEM RECOVERY CONSOLE <span>·</span> CONNECTION UNSTABLE</p>
       <h1 id="opening-title">RESTORING<br><em>DIGITAL WORLD...</em></h1>
       <div class="boot-progress" role="progressbar" aria-label="System restoration" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -261,7 +354,7 @@
         <span id="selection-status" aria-live="polite">Select an answer</span>
         <button class="primary" id="next" disabled type="button">Continue →</button>
       </div>
-      <p class="demo-note">Preview edition · Sample questions only</p>
+      <p class="demo-note" id="autosave-indicator">✦ Progress auto-saved to Crypt Ledger · Resume anytime with your Team Name</p>
     </section>
 
     <section class="seal-result" id="seal-result" hidden aria-labelledby="seal-result-title">
@@ -287,28 +380,47 @@
         </div>
         <p class="voiceover-caption" id="voiceover-caption" aria-live="assertive"></p>
         <h2 class="entity-escaped" id="entity-escaped" hidden>ENTITY ESCAPED</h2>
+        <p class="ending-sealed" id="ending-sealed" hidden>YOUR ANSWERS HAVE BEEN SEALED.</p>
+
+        <!-- Round 2 Automatic Portal Handoff -->
+        <!-- Round 2 Host Gate & Handoff -->
+        <div class="round2-handoff" id="round2-handoff" hidden>
+          <p class="round2-handoff-badge">ROUND 2 UNLOCKED · THE WHEEL OF CURSES</p>
+          <p class="round2-handoff-copy" id="round2-handoff-copy">Your Round 1 record is locked in the Crypt Ledger. Step through the portal to spin the Wheel of Curses and receive your dark fate.</p>
+          <div class="round2-handoff-actions">
+            <a class="primary round2-enter-btn" id="enter-round2-btn" href="/round2/">Enter Round 2 · Wheel of Curses <span>→</span></a>
+          <!-- 1. LOCKED BY EVENT HOST -->
+          <div class="r2-gate-locked-card" id="r1R2LockedCard" hidden style="background: rgba(255, 75, 54, 0.08); border: 1px solid rgba(255, 75, 54, 0.45); border-radius: 12px; padding: 22px 18px; margin: 18px 0; text-align: center;">
+            <div style="font-size: 34px; margin-bottom: 8px;">🔒</div>
+            <h3 style="font-size: 19px; color: #ff5252; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 8px;">
+              Wait for the Event Host to Continue
+            </h3>
+            <p style="font-size: 14.5px; color: #f4e3d7; line-height: 1.6; margin: 0 0 12px; max-width: 480px; margin-inline: auto;">
+              Your Round 1 answers are sealed in the Crypt Ledger. Round 2 has not been opened yet. Please stand by — as soon as the event host allows access, Round 2 will open automatically for all devices!
+            </p>
+            <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #ffb347; font-family: monospace; background: rgba(0,0,0,0.35); padding: 6px 14px; border-radius: 20px;">
+              <span class="status-pulse-dot" style="background:#ffb347; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span> Checking clearance with event server…
+            </div>
+          </div>
+          <p class="round2-countdown" id="round2-countdown">Opening the Altar of Curses...</p>
+
+          <!-- 2. UNLOCKED BY EVENT HOST -->
+          <div class="r2-gate-unlocked-card" id="r1R2UnlockedCard" hidden>
+            <p class="round2-handoff-badge" style="background: rgba(56, 224, 112, 0.15); color: #72f79c; border: 1px solid rgba(56, 224, 112, 0.4);">🔓 ROUND 2 UNLOCKED · ACCESS GRANTED</p>
+            <p class="round2-handoff-copy" id="round2-handoff-copy">Your Round 1 record is locked in the Crypt Ledger. Step through the portal to spin the Wheel of Curses and receive your dark fate.</p>
+            <div class="round2-handoff-actions">
+              <a class="primary round2-enter-btn" id="enter-round2-btn" href="/round2/">Enter Round 2 · Wheel of Curses <span>→</span></a>
+            </div>
+            <p class="round2-countdown" id="round2-countdown">Opening Round 2 in 3s...</p>
+          </div>
+        </div>
       </div>
       <button class="secondary skip-story" id="skip-ending" type="button">Skip sequence</button>
-    </section>
-
-    <section class="result" id="result" hidden aria-labelledby="result-title">
-      <p class="eyebrow">PHANTOM PROTOCOL · FINAL REPORT</p>
-      <div class="result-symbol" aria-hidden="true">✦</div>
-      <h2 id="result-title" tabindex="-1">ENTITY ESCAPED</h2>
-      <p class="lead" id="result-copy"></p>
-      <p class="score" id="score"></p>
-      <p class="demo-note">Practice mission · This score is not an event qualification.</p>
-      <div class="final-seals" id="final-seals" aria-label="All security seals"></div>
-      <div id="review"></div>
-      <div class="result-actions">
-        <button class="primary" id="restart" type="button">Restart protocol ↻</button>
-        <button class="secondary" id="share-btn" type="button">Copy Fate 📋</button>
-      </div>
-      <div id="share-toast" class="share-toast" role="status" aria-live="polite" hidden>Fate sealed to clipboard!</div>
     </section>
   </main>
 
   <!-- ============ BLOODY HORROR JUMPSCARE OVERLAY ============ -->
+  <div id="scene-transition" aria-hidden="true"></div>
   <div class="scare-stage" id="scare-stage" aria-hidden="true">
     <div class="scare-blood-splatter"></div>
     <div class="scare-blood-curtain"></div>
@@ -336,6 +448,7 @@
 
   <audio id="audio" src="assets/creepy-laugh.mp3" preload="none" loop></audio>
   <script src="questions.js"></script>
+  <script src="background-music.js"></script>
   <script src="quiz.js"></script>
 </body>
 </html>

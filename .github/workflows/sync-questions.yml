@@ -1,0 +1,64 @@
+name: Synchronize Quiz Questions to Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Perform dry run only without writing to database'
+        required: true
+        type: boolean
+        default: true
+      confirm_production_write:
+        description: 'Type "CONFIRM_SYNC" to authorize live database update'
+        required: false
+        type: string
+        default: ''
+
+concurrency:
+  group: sync-questions-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Question Bank (Dry Run)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate Question Definitions
+        run: npm run sync:questions:dry
+
+  sync:
+    name: Sync Questions Bank to Production Supabase
+    needs: validate
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false && inputs.confirm_production_write == 'CONFIRM_SYNC' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Synchronize to Supabase (Production)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node scripts/sync-questions.js
